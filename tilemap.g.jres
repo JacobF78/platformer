@@ -28,15 +28,65 @@
         "tilemapTile": true,
         "displayName": "unluckyTile"
     },
+    "tile5": {
+        "data": "hwQQABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "tilemapTile": true,
+        "displayName": "backGroundTile"
+    },
+    "tile6": {
+        "data": "hwQQABAAAAAAAAAAAAAA/wAAAAAAAP+7AAAAAAD/u7sAAAAA/7u7uwAAAP+7u7u7AAD/u7u7u7sA/7u7u7u7u/+7u7u7u7u7/7u7u7u7u7sA/7u7u7u7uwAA/7u7u7u7AAAA/7u7u7sAAAAA/7u7uwAAAAAA/7u7AAAAAAAA/7sAAAAAAAAA/w==",
+        "mimeType": "image/x-mkcd-f4",
+        "tilemapTile": true,
+        "displayName": "hazardTile"
+    },
+    "tile8": {
+        "data": "hwQQABAAAAAAAADwDwAAAAAAAPAPAAAAAAAAv/sAAAAAAAC/+wAAAAAA8Lu7DwAAAADwu7sPAAAAAL+7u/sAAAAAv7u7+wAAAPC7u7u7DwAA8Lu7u7sPAAC/u7u7u/sAAL+7u7u7+wDwu7u7u7u7D/C7u7u7u7sPv7u7u7u7u/u/u7u7u7u7+w==",
+        "mimeType": "image/x-mkcd-f4",
+        "tilemapTile": true,
+        "displayName": "rightHazardTile"
+    },
+    "tile9": {
+        "data": "hwQQABAAAAD/AAAAAAAAALv/AAAAAAAAu7v/AAAAAAC7u7v/AAAAALu7u7v/AAAAu7u7u7v/AAC7u7u7u7v/ALu7u7u7u7v/u7u7u7u7u/+7u7u7u7v/ALu7u7u7/wAAu7u7u/8AAAC7u7v/AAAAALu7/wAAAAAAu/8AAAAAAAD/AAAAAAAAAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "tilemapTile": true,
+        "displayName": "topHazardTile"
+    },
+    "tile10": {
+        "data": "hwQQABAAAAC/u7u7u7u7+7+7u7u7u7v78Lu7u7u7uw/wu7u7u7u7DwC/u7u7u/sAAL+7u7u7+wAA8Lu7u7sPAADwu7u7uw8AAAC/u7v7AAAAAL+7u/sAAAAA8Lu7DwAAAADwu7sPAAAAAAC/+wAAAAAAAL/7AAAAAAAA8A8AAAAAAADwDwAAAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "tilemapTile": true,
+        "displayName": "leftHazardTile"
+    },
+    "tile7": {
+        "data": "hwQQABAAAAAAAAAAAAAAAAAAAP//////AADw7u7u7u4AAO/u7u7u7gDw7u7u7u7uAO/u7u7u7u7w7u7u7v/u7vDu7u7u/+7u8O7u7u7u7u7w7u7u7u7u7gDv7u7u7u7uAPDu7u7u7u4AAO/u7u7u7gAA8O7u7u7uAAAA//////8AAAAAAAAAAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "tilemapTile": true,
+        "displayName": "door"
+    },
+    "tile11": {
+        "data": "hwQQABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/w8AAAAAAPB39wAAAAAAf3d3DwAAAPB3d3f3AAAAf3d3d3cPAPB3d3d3d/cAf3d3d3d3dw/wd3d3d3f3AAB/d3d3dw8AAPB3d3f3AAAAAH93dw8AAAAA8Hf3AAAAAAAA/w8AAAAAAAAAAAAAAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "tilemapTile": true,
+        "displayName": "spawnTile"
+    },
     "test1": {
         "id": "test1",
         "mimeType": "application/mkcd-tilemap",
-        "data": "MTAwYzAwMGMwMDAxMDEwMTAxMDEwMTAxMDEwMTAxMDEwMTAxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTAxMDAwMjAwMDAwMDAwMDAwMDAzMDAwMTAxMDAwMTAxMDAwMDAzMDAwMDAyMDAwMTAxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTAxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTAxMDAwMDAwMDMwMTAxMDAwMDAwMDAwMTAxMDAwMDAwMDAwMDAwMDAwMDAyMDAwMTAxMDAwMDAwMDAwMDAwMDAwMTAxMDAwMTAxMDAwMDAwMDAwMDAwMDAwMDAwMDAwMTAxMDAwMjAwMDAwMDAwMDAwMDAwMDAwMTAxMDEwMTAxMDEwMTAxMDEwMTAxMDEwMTIyMjIyMjIyMjIyMjAyMDAwMDAwMDAyMDAyMDAwMDAwMjAyMDAyMjIwMDAyMDAyMDAyMDAwMDAwMDAyMDAyMDAwMDAwMDAyMDAyMDAyMjAyMDAyMDAyMDAwMDAwMDAyMDAyMDAwMDAwMjIyMDAyMDAwMDAwMDAyMDAyMDAwMDAwMDAyMDIyMjIyMjIyMjIyMg==",
+        "data": "MTAwYzAwMGMwMDBiMGIwYjBiMGIwYjBiMGIwYjBiMGIwYjBiMDAwMDAwMDcwMDAwMDAwMDAwMDAwYjBiMDAwMjAwMDAwMDAwMDAwMDAzMDAwYjBiMDAwMTAxMDAwMDAzMDAwMDAyMDAwYjBiMDAwMDAwMDAwMDAwMDAwMDAwMDAwYjBiMDAwNDAwMDAwOTAwMDAwMDAwMDYwYjBiMDAwMDAwMDMwMTAxMDAwMDAwMDAwYjBiMDAwMDAwMDAwMDAwMDAwMDAyMDAwYjBiMDAwMDAwMDAwMDAwMDAwMTAxMDAwYjBiMDgwMDAwMDAwMDAwMDAwMDAwMDAwYjBiMDAwMjAwMDAwNTA1MDAwMDAwMGEwYjBiMGIwYjBiMGIwYjBiMGIwYjBiMGIwYjIyMjIyMjIyMjIyMjAyMDAwMDAwMDAyMDAyMDAwMDAwMjAyMDAyMjIwMDAyMDAyMDAyMDAwMDAwMDAyMDAyMDAwMDAwMDAyMDAyMDAyMjAyMDAyMDAyMDAwMDAwMDAyMDAyMDAwMDAwMjIyMDAyMDAwMDAwMDAyMDAyMDAwMDAwMDAyMDIyMjIyMjIyMjIyMg==",
         "tileset": [
             "myTiles.transparency16",
             "myTiles.tile1",
             "myTiles.tile2",
-            "myTiles.tile3"
+            "myTiles.tile3",
+            "myTiles.tile5",
+            "myTiles.tile6",
+            "myTiles.tile8",
+            "myTiles.tile9",
+            "myTiles.tile10",
+            "myTiles.tile7",
+            "myTiles.tile11",
+            "sprites.dungeon.floorLight0"
         ],
         "displayName": "test"
     },
