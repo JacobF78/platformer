@@ -2,7 +2,7 @@ namespace SpriteKind{
 export const Collectible = SpriteKind.create()
 export const Box = SpriteKind.create()
 }
-let level:number = -1
+let level:number = 0
 let jumps: number = 1
 let playerSprite:Sprite = null 
 let isFalling: boolean = false
@@ -14,7 +14,12 @@ function selectLevel(){
         createCollectiblesOnTileMap()
         
         
+    }else if(level == 0){
+        tiles.setTilemap(tilemap`test2`)
+        createCollectiblesOnTileMap()
     }
+
+    
     createPlayer()
 }
 function createPlayer() {
@@ -1312,3 +1317,11 @@ function createPlayerAnimations(){
     `], 100, characterAnimations.rule(Predicate.HittingWallDown, Predicate.NotMoving, Predicate.FacingRight))
 
 }
+scene.onOverlapTile(SpriteKind.Player, assets.tile`lava`, function (sprite, location) {
+    sprites.destroy(sprite)
+    scene.cameraShake(99, 500)
+})
+scene.onOverlapTile(SpriteKind.Player, assets.tile`conveyerMove`, function (sprite, location) {
+   
+
+})
