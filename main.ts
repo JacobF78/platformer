@@ -1,6 +1,9 @@
 namespace SpriteKind{
 export const Collectible = SpriteKind.create()
 export const Box = SpriteKind.create()
+export const GrowPower = SpriteKind.create()
+export const Tile = SpriteKind.create()
+export const ShootPower = SpriteKind.create()
 }
 let level:number = 0
 let jumps: number = 1
@@ -46,7 +49,13 @@ function createPlayer() {
     playerSprite.ay = 300
     createPlayerAnimations()
     tiles.placeOnRandomTile(playerSprite, assets.tile`door`)
+    resetPlayerPowerUps()
     
+}
+function resetPlayerPowerUps(){
+    playerSprite.scale = 1
+    sprites.setDataBoolean(playerSprite,"GrowPower",false)
+    sprites.setDataBoolean(playerSprite,"ShootPower",false)
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Collectible, function (sprite, otherSprite) {
     sprites.destroy(otherSprite)
@@ -854,7 +863,64 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function(){
        isFalling = true
    }
 })
+controller.B.onEvent(ControllerButtonEvent.Pressed, function(){
+    if(sprites.readDataBoolean(playerSprite, "ShootPower")){
+        let projectileSprite:Sprite = sprites.create(img`
+            . . . . 8 8 8 8 8 8 8 . . . . .
+            . . . 8 8 8 8 8 8 8 8 8 . . . .
+            . . 8 8 6 6 6 6 6 6 6 8 8 . . .
+            . 8 8 6 6 6 6 6 6 6 6 6 8 8 . .
+            . 8 8 6 6 9 9 9 9 9 6 6 8 8 . .
+            . 8 8 6 6 9 9 9 9 9 6 6 8 8 . .
+            . 8 8 6 6 9 9 2 9 9 6 6 8 8 . .
+            . 8 8 6 6 9 9 9 9 9 6 6 8 8 . .
+            . 8 8 6 6 9 9 9 9 9 6 6 8 8 . .
+            . 8 8 6 6 6 6 6 6 6 6 6 8 8 . .
+            . . 8 8 6 6 6 6 6 6 6 8 8 . . .
+            . . . 8 8 8 8 8 8 8 8 8 . . . .
+            . . . . 8 8 8 8 8 8 8 . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `,SpriteKind.Projectile)
+        projectileSprite.setPosition(playerSprite.x,playerSprite.y)
+        projectileSprite.lifespan = 2500
+        projectileSprite.ay = 400
+        projectileSprite.vy = -50
+        projectileSprite.setBounceOnWall(true)
+        if(characterAnimations.matchesRule(playerSprite, Predicate.FacingRight)){
+            projectileSprite.vx = 100
+        }else if(characterAnimations.matchesRule(playerSprite, Predicate.FacingLeft)){
+            projectileSprite.vx = -100
+        }
+    }
+})
+function destroyTile(tileImage: Image,targetLocation :tiles.Location){
+    let tileSprite = sprites.create(tileImage, SpriteKind.Tile)
+    tiles.setTileAt(targetLocation,img`
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+    `)
+    tiles.setWallAt(targetLocation,false)
+    tiles.placeOnTile(tileSprite,targetLocation)
+    tileSprite.vy = -50
+    tileSprite.destroy(effects.disintegrate, 200)
 
+}
 scene.onHitWall(SpriteKind.Player, function(sprite,location){
     if(sprite.isHittingTile(CollisionDirection.Bottom)){
         jumps += 1
@@ -864,7 +930,8 @@ scene.onHitWall(SpriteKind.Player, function(sprite,location){
     if(sprite.isHittingTile(CollisionDirection.Top)){
         if(tiles.tileAtLocationEquals(location, assets.tile`luckyTile`)){
             let targetLocation: tiles.Location = tiles.getTileLocation(location.column  , location.row-1)
-            createCollectible(targetLocation)
+            //createCollectible(targetLocation)
+            createPowerUp(randint(0,powerUpObject["image"].length-1),targetLocation)
             // tiles.setTileAt(location,assets.tile`unluckyTile`)
             hitPowerBox(img`
                 . . . . . . . . . . . . . . . .
@@ -890,7 +957,10 @@ scene.onHitWall(SpriteKind.Player, function(sprite,location){
 
         }
         if(tiles.tileAtLocationEquals(location, assets.tile`stone1`)){
-            if(Math.randomRange(1,10)<2){
+            if(sprites.readDataBoolean(sprite, "GrowPower" )){
+                destroyTile(assets.tile`stone1`,location)
+            }
+            else if(Math.randomRange(1,10)<2){
                 let targetLocation: tiles.Location = tiles.getTileLocation(location.column, location.row - 1)
                 createCollectible(targetLocation)
                 hitPowerBox(img`
@@ -919,7 +989,23 @@ scene.onHitWall(SpriteKind.Player, function(sprite,location){
 game.onUpdate(function(){
     if(playerSprite.vy > 0){
         isFalling =true
+
     }
+    for(let powerup of sprites.allOfKind(SpriteKind.GrowPower)){
+        if (powerup.isHittingTile(CollisionDirection.Left)){
+            powerup.vx = Math.randomRange(25, 50)
+        }else if (powerup.isHittingTile(CollisionDirection.Right)){
+            powerup.vx = Math.randomRange(-25, -50)
+        }
+    }
+    for (let powerup of sprites.allOfKind(SpriteKind.ShootPower)) {
+        if (powerup.isHittingTile(CollisionDirection.Left)) {
+            powerup.vx = Math.randomRange(25, 50)
+        } else if (powerup.isHittingTile(CollisionDirection.Right)) {
+            powerup.vx = Math.randomRange(-25, -50)
+        }
+    }
+
     // playerSprite.sayText(isFalling)
     if(tiles.getTilesByType(assets.tile`luckyTile`).length <=0){
         tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(),assets.tile`luckyTile`)
@@ -1322,6 +1408,71 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`lava`, function (sprite, loca
     scene.cameraShake(99, 500)
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`conveyerMove`, function (sprite, location) {
-   
+   playerSprite.vx = 40
 
 })
+sprites.onOverlap(SpriteKind.Player,SpriteKind.GrowPower,function(sprite,otherSprite){
+    otherSprite.destroy()
+    if(sprites.readDataBoolean(sprite,"GrowPower")){
+        return
+    }
+    sprites.setDataBoolean(sprite, "GrowPower", true)
+    sprite.scale = 2
+    sprite.vy = -100
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.ShootPower, function (sprite, otherSprite) {
+    otherSprite.destroy()
+    if (sprites.readDataBoolean(sprite, "ShootPower")) {
+        return
+    }
+    sprites.setDataBoolean(sprite, "ShootPower", true)
+    
+    
+})
+function createPowerUp(powerUpType:number,targetLocation: tiles.Location){
+let powerUpSprite: Sprite = sprites.create(powerUpObject["image"][powerUpType],powerUpObject["kind"][powerUpType])
+    powerUpSprite.ay = 300
+    powerUpSprite.setVelocity(Math.randomRange(-25,25), -100)
+    tiles.placeOnTile(powerUpSprite,targetLocation)
+}
+let powerUpObject = {
+    "image": [
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . f 5 . . . . . . . . .
+            . . . . . 5 5 5 5 . . . . . . .
+            . . . . . . 5 5 5 5 . . . . . .
+            . . . . . . . . 5 5 . . . . . .
+            . . . . . . . . 5 5 . . . . . .
+            . . . . . . . 5 5 5 . . . . . .
+            . . . . . . 5 5 5 . . . . . . .
+            . . . . . 5 5 5 5 . . . . . . .
+            . . . . . f 5 . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . e e . . . . . . . . .
+            . . . . . . e e e . . . . . . .
+            . . . . . . . . e e e . . . . .
+            . . . . . . . . . . e e . . . .
+            . . . . . . . . . . e e . . . .
+            . . . . . . . . . . e . . . . .
+            . . . . . . . . . e e . . . . .
+            . . . . . . . . e e . . . . . .
+            . . . . . . . . e . . . . . . .
+            . . . . . . . e e . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `,
+        ],
+    "kind":[SpriteKind.GrowPower,SpriteKind.ShootPower]
+}
