@@ -11,26 +11,27 @@ let level:number = 0
 let jumps: number = 1
 let playerSprite:Sprite = null 
 let isFalling: boolean = false
+let isFlying: boolean = false
 info.setScore(0)
 let enemyObject = {
     "image":[
         img`
-            . . . . . . 1 1 1 . . . . . . .
-            . . . . . . 1 1 1 1 . . . . . .
-            . . . . . . 1 1 1 1 . . . . . .
-            . . . . . . 1 1 1 1 . . . . . .
-            . . . . . . 1 1 1 . . . . . . .
-            . . . . . 1 1 1 1 1 . . . . . .
-            . . . . 1 1 . 1 . . 1 1 . . . .
-            . . . 1 . . . 1 1 . . . 1 . . .
-            . . 1 . . . . . 1 . . . . 1 . .
-            . 1 . . . . . 1 . 1 . . . . 1 1
-            . . . . . . 1 1 . 1 . . . . . .
-            . . . . . . 1 . . 1 . . . . . .
-            . . . . . 1 1 . 1 . . . . . . .
-            . . . . . 1 . . 1 . . . . . . .
-            . . . . 1 1 . . 1 . . . . . . .
-            . . . . . . . . 1 . . . . . . .
+            . . . e e e e e e . . . . . . . . .
+            . . e e e e e e e e . . . . . . . .
+            . e e e e e e e e e e . . . . . . .
+            e e e e e e e e e e e e . . . . . .
+            e e e 4 4 4 e e e e e e . . . . . .
+            e e e 4 4 4 4 e e e e e . . . . . .
+            f 4 e 4 4 4 4 4 4 e 4 f . . . . . .
+            f 4 4 f f 4 4 f f 4 4 f . . . . . .
+            f e 4 d d d d d d 4 e f . . e . . .
+            . f e d d b b d d e f . . e . e . .
+            . f 3 e 4 4 4 4 e f f . e . . e . .
+            e 4 f b 1 1 1 1 b f 4 e . e . . e .
+            4 d f 1 1 1 1 1 1 f d e . . e e . .
+            4 4 f 6 6 6 6 6 6 f 4 4 . . . . . .
+            . . . f f f f f f . . . . . . . . .
+            . . . f f . . f f . . . . . . . . .
         `],
     "health":[
         1
@@ -122,6 +123,8 @@ function createPlayer() {
     
 }
 function resetPlayerPowerUps(){
+    isFlying = false
+    info.stopCountdown()
     playerSprite.scale = 1
     sprites.setDataBoolean(playerSprite,"GrowPower",false)
     sprites.setDataBoolean(playerSprite,"ShootPower",false)
@@ -932,7 +935,7 @@ function createCollectible(tileLocation: tiles.Location){
 selectLevel()
 
 controller.A.onEvent(ControllerButtonEvent.Pressed, function(){
-   if(jumps > 0&& !isFalling&&!sprites.readDataBoolean(playerSprite,"BatPower")){
+   if(jumps > 0&& !isFalling&&!isFlying){
        isFalling = true
        jumps = 0
        if(sprites.readDataBoolean(playerSprite,"ShrinkPower")){
@@ -975,6 +978,22 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function(){
             projectileSprite.vx = -100
         }
     }
+    if(sprites.readDataBoolean(playerSprite,"BatPower")&&!isFlying){
+        batPower()
+        info.startCountdown(15)
+        isFlying = true
+    }
+    
+    
+    
+})
+info.onCountdownEnd(function(){
+    resetPlayerPowerUps()
+    
+    timer.after(10000, function() {
+        sprites.setDataBoolean(playerSprite, "BatPower", true)
+    })
+
 })
 function destroyTile(tileImage: Image,targetLocation :tiles.Location,effectType:effects.ParticleEffect,velocityY:number){
     let tileSprite = sprites.create(tileImage, SpriteKind.Tile)
@@ -1073,6 +1092,10 @@ scene.onHitWall(SpriteKind.Player, function(sprite,location){
     }
    
 })
+
+game.onUpdateInterval(1000,function(){
+    spriteJump(SpriteKind.Enemy)
+})
 game.onUpdate(function(){
     changeDirectionX(SpriteKind.BatPower)
     changeDirectionX(SpriteKind.GrowPower)
@@ -1081,34 +1104,10 @@ game.onUpdate(function(){
     changeDirectionX(SpriteKind.Enemy)
     if(playerSprite.vy > 0){
         isFalling =true
+        
 
     }
-    // for(let powerup of sprites.allOfKind(SpriteKind.GrowPower)){
-    //     if(powerup.isHittingTile(CollisionDirection.Left)||powerup.isHittingTile(CollisionDirection.Right)){
-    //         powerup.vx = -sprites.readDataNumber(powerup,"speed")
-    //     }
-        
-    // }
-    // for (let powerup of sprites.allOfKind(SpriteKind.ShootPower)) {
-    //     if (powerup.isHittingTile(CollisionDirection.Left) || powerup.isHittingTile(CollisionDirection.Right)) {
-    //         powerup.vx = -sprites.readDataNumber(powerup, "speed")
-    //     }
-
-    // }
-    // for (let powerup of sprites.allOfKind(SpriteKind.BatPower)) {
-    //     if (powerup.isHittingTile(CollisionDirection.Left) || powerup.isHittingTile(CollisionDirection.Right)) {
-    //         powerup.vx = -sprites.readDataNumber(powerup, "speed")
-    //     }
-
-    // }
-    // for (let powerup of sprites.allOfKind(SpriteKind.ShrinkPower)) {
-    //     if (powerup.isHittingTile(CollisionDirection.Left) || powerup.isHittingTile(CollisionDirection.Right)) {
-    //         powerup.vx = -sprites.readDataNumber(powerup, "speed")
-    //     }
-
-    // }
-
-    // playerSprite.sayText(isFalling)
+    
     if(tiles.getTilesByType(assets.tile`luckyTile`).length <=0){
         tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(),assets.tile`luckyTile`)
     }
@@ -2154,7 +2153,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.BatPower, function (sprite, othe
         return
     }
     sprites.setDataBoolean(sprite, "BatPower", true)
-    batPower()
+    
 
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.ShrinkPower, function (sprite, otherSprite) {
@@ -2275,4 +2274,29 @@ function changeDirectionX(spriteType:number){
     }
 }
 
+//enemy stuff
+sprites.onOverlap(SpriteKind.Projectile,SpriteKind.Enemy,function(sprite,otherSprite){
+    otherSprite.destroy(effects.confetti)
+    sprite.destroy()
+    otherSprite.vy = -50
+})
+scene.onOverlapTile(SpriteKind.Enemy, assets.tile`lava`,function(sprite){
+sprite.destroy(effects.warmRadial)
+})
+sprites.onOverlap(SpriteKind.Player,SpriteKind.Enemy,function(sprite,otherSprite){
+    if(sprite.bottom < otherSprite.y){
+        sprite.vy = -100
+        otherSprite.destroy(effects.bubbles)
+    }else{
 
+        sprite.destroy()
+        scene.cameraShake(99,500)
+    }
+})
+function spriteJump(spriteType: number) {
+    for (let sprite of sprites.allOfKind(spriteType)) {
+        if (Math.randomRange(1, 100) < 10) {
+            sprite.vy = Math.randomRange(-50, -250)
+        }
+    }
+}
