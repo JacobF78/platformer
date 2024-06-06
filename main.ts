@@ -13,7 +13,7 @@ let playerSprite:Sprite = null
 let isFalling: boolean = false
 let isFlying: boolean = false
 info.setScore(0)
-let enemyObject = {
+let groundEnemyObject = {
     "image":[
         img`
             . . . e e e e e e . . . . . . . . .
@@ -36,15 +36,161 @@ let enemyObject = {
     "health":[
         1
     ],
+    "animation":[[
+        img`
+            . . . e e e e e . . . .
+            . . e e e e e e e e . .
+            . e e e e e e e e e e .
+            e e e e e e e e e e e e
+            f e e 4 e e e e e e e e
+            f e e 4 4 e e e f f f f
+            f f e 4 4 4 4 4 f f f f
+            f f e 4 4 f f 4 e 4 f f
+            . f f d d d d 4 d 4 f .
+            . . f b b d d 4 f f f .
+            . . f e 4 4 4 e e f . .
+            . . f e e e e d d 4 . .
+            . . f e 1 e e d d e . .
+            . . f e e e f e e f . .
+            . . . f f f f f f . . .
+            . . . . . f f f . . . .
+        `
+        ,img`
+            . . . . . . . . . . . .
+            . . . e e e e e e . . .
+            . . e e e e e e e e e .
+            . e e e e e e e e e e e
+            e e e e e e e e e e e e
+            e e e 4 e e e e e e e e
+            e e e 4 4 e e e e e e e
+            f f e 4 4 4 4 4 f f f f
+            . f e 4 4 f f 4 e 4 f f
+            . . f d d d d 4 d 4 f .
+            . . f b b d e e f f f .
+            . . f e 4 e d d 4 f . .
+            . e e e e e d d e f . .
+            . e f 6 e f e e f f f .
+            . e e e e f f f f f f .
+            . . f f f . . . f f . .
+        `
+        ,img`
+            . . . . . . . . . . . .
+            . . . e e e e e e . . .
+            . . e e e e e e e e e .
+            . e e e e e e e e e e e
+            e e e e e e e e e e e e
+            f e e 4 e e e e e e e e
+            f e e 4 4 e e e f f f f
+            f f e 4 4 4 4 4 f f f f
+            . f e 4 4 f f 4 e 4 f f
+            . . f d d d d 4 d 4 f f
+            . . f b b d d 4 f f f .
+            . . f e e e e e d d 4 .
+            . . f e 1 e 1 e d d e .
+            . f f e e e 6 f e e f .
+            . f f f f f f f f f f .
+            . . f f f . . . f f . .
+        `],[
+        img`
+            . . . . e e e e e . . .
+            . . e e e e e e e e . .
+            . e e e e e e e e e e .
+            e e e e e e e e e e e e
+            e e e e e e e e 4 e e f
+            f f f f e e e 4 4 e e f
+            f f f f 4 4 4 4 4 e f f
+            f f 4 e 4 f f 4 4 e f f
+            . f 4 d 4 d d d d f f .
+            . f f f 4 d d b b f . .
+            . . f e e 4 4 4 e f . .
+            . . 4 d d e e e e f . .
+            . . e d d e e 1 e f . .
+            . . f e e f e e e f . .
+            . . . f f f f f f . . .
+            . . . . f f f . . . . .
+        `
+        , img`
+            . . . . . . . . . . . .
+            . . . e e e e e e . . .
+            . e e e e e e e e e . .
+            e e e e e e e e e e e .
+            e e e e e e e e e e e e
+            e e e e e e e e 4 e e e
+            e e e e e e e 4 4 e e e
+            f f f f 4 4 4 4 4 e f f
+            f f 4 e 4 f f 4 4 e f .
+            . f 4 d 4 d d d d f . .
+            . f f f e e d b b f . .
+            . . f 4 d d e 4 e f . .
+            . . f e d d e e e e e .
+            . f f f e e f e 6 f e .
+            . f f f f f f e e e e .
+            . . f f . . . f f f . .
+        `
+        , img`
+            . . . . . . . . . . . .
+            . . . e e e e e e . . .
+            . e e e e e e e e e . .
+            e e e e e e e e e e e .
+            e e e e e e e e e e e e
+            e e e e e e e e 4 e e f
+            f f f f e e e 4 4 e e f
+            f f f f 4 4 4 4 4 e f f
+            f f 4 e 4 f f 4 4 e f .
+            f f 4 d 4 d d d d f . .
+            . f f f 4 d d b b f . .
+            . 4 d d e e e e e f . .
+            . e d d e 1 e 1 e f . .
+            . f e e f 6 e e e f f .
+            . f f f f f f f f f f .
+            . . f f . . . f f f . .
+        `
+        ]]
     
 }
-function createEnemy(enemyType:number,tileLocation:tiles.Location){
-    if(enemyType > enemyObject["image"].length&& enemyType < 0){
-        console.log("invalid enemy type ;)")
-        return
+let airEnemyObject = {
+   "image" : [
+       assets.image`drone`,
+   ],"health": [1,],
+    "animation":[
+        [
+            img``
+        ],
+        [
+            img``
+        ],
+    ]
+}
+function createAirEnemy(tileLocation:tiles.Location){
+    let enemySprite = sprites.create(airEnemyObject["image"][0],SpriteKind.Enemy)
+    sprites.setDataString(enemySprite, "type", "air")
+    tiles.placeOnTile(enemySprite, tileLocation)
+    spriteutils.onSpriteUpdateInterval(enemySprite, 399,function(sprite){
+        let playerSpriteReference = spriteutils.getSpritesWithin(SpriteKind.Player, 64, sprite)
+        if(playerSpriteReference.length > 0){
+            sprite.follow(playerSpriteReference[0],99)
+        }else {
+            spriteutils.moveTo(sprite, spriteutils.pos(sprite.x + Math.randomRange(-50, 50), sprite.y), 400)
+        }
 
+    })
+
+}
+
+function createEnemyAnimations(animationList:Image[][],sprite:Sprite){
+    // for loop thats sets animations 
+    let animationDirection = [Predicate.MovingLeft,Predicate.MovingRight,Predicate.MovingUp,Predicate.MovingDown]
+    let count: number = 0 
+    for(let currentAniamtion of animationList){
+        characterAnimations.loopFrames(sprite, currentAniamtion, 50, animationDirection[count])
+        count++
     }
-    let enemySprite = sprites.create(enemyObject["image"][enemyType],SpriteKind.Enemy)
+}
+function createGroundEnemy(tileLocation:tiles.Location){
+    
+      
+    
+    let enemySprite = sprites.create(groundEnemyObject["image"][0],SpriteKind.Enemy)
     enemySprite.ay = 300
     let directionx:number = 0
     if(Math.randomRange(-1,1)< 0){
@@ -54,12 +200,35 @@ function createEnemy(enemyType:number,tileLocation:tiles.Location){
     }
     enemySprite.setVelocity(directionx*Math.randomRange(25,40),0)
     sprites.setDataNumber(enemySprite,"speed", enemySprite.vx)
+    sprites.setDataString(enemySprite,"type","ground")
     tiles.placeOnTile(enemySprite, tileLocation)
+    createEnemyAnimations(groundEnemyObject["animation"],enemySprite)
 }
 function generateEnemyOnTileMap(){
-    for(let tileLocation of tiles.getTilesByType(assets.tile`enemySpawnTile`)){
-        createEnemy(0, tileLocation)
+    for(let tileLocation of tiles.getTilesByType(assets.tile`groundEnemySpawnTile`)){
+        createGroundEnemy(tileLocation)
         tiles.setTileAt(tileLocation,img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `)
+    }
+    for (let tileLocation of tiles.getTilesByType(assets.tile`airEnemySpawnTile`)) {
+        createAirEnemy( tileLocation)
+        tiles.setTileAt(tileLocation, img`
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
@@ -2287,6 +2456,7 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.Enemy,function(sprite,otherSprite
     if(sprite.bottom < otherSprite.y){
         sprite.vy = -100
         otherSprite.destroy(effects.bubbles)
+        info.changeScoreBy(50)
     }else{
 
         sprite.destroy()
@@ -2295,6 +2465,8 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.Enemy,function(sprite,otherSprite
 })
 function spriteJump(spriteType: number) {
     for (let sprite of sprites.allOfKind(spriteType)) {
+        if(sprites.readDataString(sprite,"type")!= "ground")
+        break
         if (Math.randomRange(1, 100) < 10) {
             sprite.vy = Math.randomRange(-50, -250)
         }
