@@ -7,6 +7,7 @@ export const ShootPower = SpriteKind.create()
 export const ShrinkPower = SpriteKind.create()
 export const BatPower = SpriteKind.create()
 export const EnemyProjectile = SpriteKind.create()
+export const SpinningEnemy = SpriteKind.create()
 }
 let level:number = 0
 let jumps: number = 1
@@ -218,11 +219,31 @@ let spinThingObject = {
         `
     ]
 }
-function createSpinThing(tileLocation:tiles.Location){
-    let enemySprite = sprites.create(spinThingObject["image"][0],SpriteKind.Enemy)
-    sprites.setDataString(enemySprite,"type","spin")
+function createSpinThing(tileLocation:tiles.Location,amount:number){
+    let enemySprite = sprites.create(spinThingObject["image"][0],SpriteKind.SpinningEnemy)
     tiles.placeOnTile(enemySprite,tileLocation)
-    
+    let orbitingSpritesList: Sprite [] = []
+
+    for(let i  = 0; i < amount; i ++){
+        let orbitingSprite: Sprite = sprites.create(spinThingObject["image"][0], SpriteKind.SpinningEnemy)
+        orbitingSprite.setFlag(SpriteFlag.GhostThroughWalls,true)
+        orbitingSpritesList.push(orbitingSprite)
+
+    }
+    let angle:number = spriteutils.degreesToRadians(Math.randomRange(0,360))
+    let distance:number = 20
+
+    spriteutils.onSpriteUpdateInterval(enemySprite,100,function(sprite){
+        let count:number = 0
+        for(let orbitingSprite of orbitingSpritesList){
+            spriteutils.placeAngleFrom(orbitingSprite,angle,distance*(count+1),sprite)
+            count++
+
+        }
+        angle += 0.395
+    })
+
+
 }
 
 let shootingEnemyObject = {
@@ -383,6 +404,27 @@ function generateEnemyOnTileMap(){
     }
     for (let tileLocation of tiles.getTilesByType(assets.tile`shootingEnemySpawn`)) {
         createShootingEnemy(tileLocation)
+        tiles.setTileAt(tileLocation, img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `)
+    }
+    for (let tileLocation of tiles.getTilesByType(assets.tile`spinEnemyTile`)) {
+        createSpinThing(tileLocation,3)
         tiles.setTileAt(tileLocation, img`
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
@@ -2616,8 +2658,14 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.EnemyProjectile,function(sprite,o
 scene.onOverlapTile(SpriteKind.Enemy, assets.tile`lava`,function(sprite){
 sprite.destroy(effects.warmRadial)
 })
-sprites.onOverlap(SpriteKind.Player,SpriteKind.Enemy,function(sprite,otherSprite){
+sprites.onOverlap(SpriteKind.Player,SpriteKind.SpinningEnemy,function(sprite,othersprite){
+    sprite.destroy()
+    scene.cameraShake(99,500)
+})
+sprites.onOverlap(SpriteKind.Player,SpriteKind.Enemy,function(sprite,otherSprite){ 
+    
     if(sprite.bottom < otherSprite.y){
+
         if(!sprites.readDataNumber(playerSprite,"BatPower")){
             sprite.vy = -100
             otherSprite.destroy(effects.bubbles)
