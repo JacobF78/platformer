@@ -8,6 +8,8 @@ export const ShrinkPower = SpriteKind.create()
 export const BatPower = SpriteKind.create()
 export const EnemyProjectile = SpriteKind.create()
 export const SpinningEnemy = SpriteKind.create()
+export const MysteryEnemy = SpriteKind.create()
+export const ShellEnemy = SpriteKind.create()
 }
 let level:number = 0
 let jumps: number = 1
@@ -219,6 +221,65 @@ let spinThingObject = {
         `
     ]
 }
+
+function createMysteryEnemy(tileLocation:tiles.Location){
+    let enemySprite:Sprite = sprites.create(img`
+        . . . . . . . . . . . c c . . .
+        . . . . . . . c c c c 6 3 c . .
+        . . . . . . c 6 3 3 3 3 6 c . .
+        . . c c . c 6 c c 3 3 3 3 3 c .
+        . b 5 5 c 6 c 5 5 c 3 3 3 3 3 c
+        . f f 5 c 6 c 5 f f 3 3 3 3 3 c
+        . f f 5 c 6 c 5 f f 6 3 3 3 c c
+        . b 5 5 3 c 3 5 5 c 6 6 6 6 c c
+        . . b 5 5 3 5 5 c 3 3 3 3 3 3 c
+        . . c 5 5 5 5 b c c 3 3 3 3 3 c
+        . . c 4 5 5 4 b 5 5 c 3 3 3 c .
+        . c 5 b 4 4 b b 5 c c b b b . .
+        . c 4 4 b 5 5 5 4 c 4 4 4 5 b .
+        . c 5 4 c 5 5 5 c 4 4 4 c 5 c .
+        . c 5 c 5 5 5 5 c 4 4 4 c c c .
+        . . c c c c c c c . . . . . . .
+    `,SpriteKind.MysteryEnemy)
+    enemySprite.ay = 300
+    let directionx: number = 0
+    if (Math.randomRange(-1, 1) < 0) {
+        directionx = -1
+    } else {
+        directionx = 1
+    }
+    enemySprite.setVelocity(directionx * Math.randomRange(25, 40), 0)
+    sprites.setDataNumber(enemySprite, "speed", enemySprite.vx)
+
+    tiles.placeOnTile(enemySprite,tileLocation)
+
+}
+
+function createShellEnemy(spriteLocation:Sprite){
+    let enemySprite: Sprite = sprites.create(img`
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . c c . .
+        . . . . . . . c c c c c 6 3 c .
+        . . . . . . c 6 6 3 3 3 6 6 c .
+        . . . . . c 6 6 6 3 3 3 3 3 3 c
+        . . . . c 6 6 6 6 3 3 3 3 3 3 c
+        . . c c c 6 6 6 6 6 3 3 3 3 3 c
+        . c 3 3 3 c 6 6 6 6 6 3 3 3 3 c
+        c 3 c c c 3 c 6 6 6 6 6 3 3 c c
+        c 6 c c c c 3 c 6 6 6 6 6 6 c c
+        c 6 c c c c 6 6 c 6 6 3 3 3 3 c
+        . c 6 c c c c 6 c 6 3 3 3 3 6 c
+        . . c 6 c c c c c 6 3 3 3 6 c .
+        . . . c c c c c c c c c c c . .
+    `, SpriteKind.ShellEnemy)
+
+    enemySprite.ay = 300
+    enemySprite.setPosition(spriteLocation.x,spriteLocation.y)
+}
+
+
 function createSpinThing(tileLocation:tiles.Location,amount:number){
     let enemySprite = sprites.create(spinThingObject["image"][0],SpriteKind.SpinningEnemy)
     tiles.placeOnTile(enemySprite,tileLocation)
@@ -444,7 +505,31 @@ function generateEnemyOnTileMap(){
             . . . . . . . . . . . . . . . .
         `)
     }
+    for(let tileLocation of tiles.getTilesByType(assets.tile`mysteryEnemySpawn`)) {
+        createMysteryEnemy(tileLocation)
+        tiles.setTileAt(tileLocation, img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `)
+    }
 }
+
+
+
 
 function selectLevel(){
     
@@ -1472,6 +1557,8 @@ game.onUpdate(function(){
     changeDirectionX(SpriteKind.ShootPower)
     changeDirectionX(SpriteKind.ShrinkPower)
     changeDirectionX(SpriteKind.Enemy)
+    changeDirectionX(SpriteKind.MysteryEnemy)
+    changeDirectionX(SpriteKind.ShellEnemy)
     if(playerSprite.vy > 0){
         isFalling =true
         
@@ -1890,10 +1977,17 @@ scene.onOverlapTile(SpriteKind.BatPower, assets.tile`lava`, function (sprite, lo
 scene.onOverlapTile(SpriteKind.ShrinkPower, assets.tile`lava`, function (sprite, location) {
     sprite.destroy()
 })
+scene.onOverlapTile(SpriteKind.ShellEnemy, assets.tile`lava`, function (sprite, location) {
+    sprite.destroy()
+})
+scene.onOverlapTile(SpriteKind.MysteryEnemy, assets.tile`lava`, function (sprite, location) {
+    sprite.destroy()
+})
 scene.onOverlapTile(SpriteKind.Player, assets.tile`conveyerMove`, function (sprite, location) {
    playerSprite.vx = 40
 
 })
+
 sprites.onOverlap(SpriteKind.Player,SpriteKind.GrowPower,function(sprite,otherSprite){
     otherSprite.destroy()
     resetPlayerPowerUps()
@@ -2677,6 +2771,43 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.Enemy,function(sprite,otherSprite
         sprite.destroy()
         scene.cameraShake(99,500)
     }
+})
+
+sprites.onOverlap(SpriteKind.Player,SpriteKind.MysteryEnemy,function(sprite,otherSprite){
+    if(sprite.bottom < otherSprite.y){
+        sprite.vy = -100
+        otherSprite.destroy()
+        
+        createShellEnemy(otherSprite)
+    }else{
+        sprite.destroy()
+        scene.cameraShake(99,500)
+    }
+})
+
+sprites.onOverlap(SpriteKind.Player,SpriteKind.ShellEnemy,function(sprite,otherSprite){
+    if(Math.abs(otherSprite.vx) > 0 ){
+            if(sprite.bottom < otherSprite.bottom){
+                sprite.vy = -100
+                otherSprite.vx = 0
+                
+            }else{
+                sprite.destroy()
+                scene.cameraShake(99,500)
+            }
+        
+    }else{
+        if(characterAnimations.matchesRule(sprite,Predicate.FacingRight)){
+            otherSprite.vx = 101
+        }else{
+            otherSprite.vx = -101
+        }
+        otherSprite.setFlag(SpriteFlag.GhostThroughSprites,true)
+        timer.after(100, function() {
+            otherSprite.setFlag(SpriteFlag.GhostThroughSprites, false)
+        })
+    }
+    sprites.setDataNumber(otherSprite,"speed",otherSprite.vx)
 })
 function spriteJump(spriteType: number) {
     for (let sprite of sprites.allOfKind(spriteType)) {
