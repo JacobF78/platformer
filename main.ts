@@ -223,6 +223,156 @@ let spinThingObject = {
 }
 
 function createMysteryEnemy(tileLocation:tiles.Location){
+    let enemySpriteAnimations: Image[][] = [
+        [
+            img`
+                . . . . . . . . . . . c c . . .
+                . . . . . . . c c c c 6 3 c . .
+                . . . . . . c 6 3 3 3 3 6 c . .
+                . . c c . c 6 c c 3 3 3 3 3 c .
+                . b 5 5 c 6 c 5 5 c 3 3 3 3 3 c
+                . f f 5 c 6 c 5 f f 3 3 3 3 3 c
+                . f f 5 c 6 c 5 f f 6 3 3 3 c c
+                . b 5 5 3 c 3 5 5 c 6 6 6 6 c c
+                . . b 5 5 3 5 5 c 3 3 3 3 3 3 c
+                . . c 5 5 5 5 b c c 3 3 3 3 3 c
+                . . c 4 5 5 4 b 5 5 c 3 3 3 c .
+                . c 5 b 4 4 b b 5 c c b b b . .
+                . c 4 4 b 5 5 5 4 c 4 4 4 5 b .
+                . c 5 4 c 5 5 5 c 4 4 4 c 5 c .
+                . c 5 c 5 5 5 5 c 4 4 4 c c c .
+                . . c c c c c c c . . . . . . .
+            `,
+            img`
+                . . . . . . . . . . . . . . . .
+                . . . . . . . . . . c c . . . .
+                . . . . . . c c c c 6 3 c . . .
+                . . . . . c 6 6 3 3 3 6 c . . .
+                . . . . c 6 6 3 3 3 3 3 3 c . .
+                b c c c 6 6 c c 3 3 3 3 3 3 c .
+                b 5 5 c 6 c 5 5 c 3 3 3 3 3 c .
+                f f 5 c 6 c 5 f f 6 3 3 3 c c .
+                f f 5 c c c 5 f f 6 6 6 6 c c .
+                . b 5 5 3 5 5 c 3 3 3 3 3 3 c .
+                . c 5 5 5 5 4 c c c 3 3 3 3 c .
+                . c 4 5 5 4 4 b 5 5 c 3 3 c . .
+                . c 5 b 4 4 b b 5 c b b c . . .
+                . c c 5 4 c 5 5 5 c c 5 c . . .
+                . . . c c 5 5 5 5 c c c c . . .
+                . . . . c c c c c c . . . . . .
+            `,
+            img`
+                . . . . . . . . . . . . . . . .
+                . . . . . . . . . . . c c . . .
+                . . . . . . . c c c c 6 3 c . .
+                . . . . . . c 6 6 3 3 3 6 c . .
+                . . . . . c 6 6 3 3 3 3 3 3 c .
+                . b c c c 6 6 c c 3 3 3 3 3 3 c
+                . b 5 5 c 6 c 5 5 c 3 3 3 3 3 c
+                . f f 5 c 6 c 5 f f 6 3 3 3 c c
+                . f f 5 c c c 5 f f 6 6 6 6 c c
+                . . b 5 5 3 5 5 c c c 3 3 3 3 c
+                . . c 5 5 5 5 5 b 5 5 c 3 3 3 c
+                . c 4 4 5 5 4 4 b b 5 c 3 3 c .
+                . c 5 5 b 4 4 4 b 5 5 5 b c . .
+                . c 5 5 5 4 4 4 c 5 5 5 c b . .
+                . . c c c c 4 c 5 5 5 5 c c . .
+                . . . . c c c c c c c c c c . .
+            `,
+            img`
+                . . . . . . . . . . . c c . . .
+                . . . . . . . c c c c 6 3 c . .
+                . . . . . . c 6 3 3 3 3 6 c . .
+                . . c c . c 6 c c 3 3 3 3 3 c .
+                . b 5 5 c 6 c 5 5 c 3 3 3 3 3 c
+                . f f 5 c 6 c 5 f f 3 3 3 3 3 c
+                . f f 5 c 6 c 5 f f 6 3 3 3 c c
+                . b 5 5 3 c 3 5 5 c 6 6 6 6 c c
+                . . b 5 5 3 5 5 c 3 3 3 3 3 3 c
+                . c c 5 5 5 5 4 c c 3 3 3 3 3 c
+                c 5 5 4 5 5 4 c 5 5 c 3 3 3 c .
+                b 5 4 b 4 4 4 c 5 5 5 b c c . .
+                c 4 5 5 b 4 4 c 5 5 5 c b b . .
+                c 5 5 5 c 4 c 5 5 5 5 c c 5 b .
+                c 5 5 5 5 c 4 c c c c c c 5 c .
+                . c c c c c c . . . . . c c c .
+            `,
+        ],
+        [
+            img`
+                . . . c c . . . . . . . . . . .
+                . . c 3 6 c c c c . . . . . . .
+                . . c 6 3 3 3 3 6 c . . . . . .
+                . c 3 3 3 3 3 c c 6 c . c c . .
+                c 3 3 3 3 3 c 5 5 c 6 c 5 5 b .
+                c 3 3 3 3 3 f f 5 c 6 c 5 f f .
+                c c 3 3 3 6 f f 5 c 6 c 5 f f .
+                c c 6 6 6 6 c 5 5 3 c 3 5 5 b .
+                c 3 3 3 3 3 3 c 5 5 3 5 5 b . .
+                c 3 3 3 3 3 c c b 5 5 5 5 c . .
+                . c 3 3 3 c 5 5 b 4 5 5 4 c . .
+                . . b b b c c 5 b b 4 4 b 5 c .
+                . b 5 4 4 4 c 4 5 5 5 b 4 4 c .
+                . c 5 c 4 4 4 c 5 5 5 c 4 5 c .
+                . c c c 4 4 4 c 5 5 5 5 c 5 c .
+                . . . . . . . c c c c c c c . .
+            `,
+            img`
+                . . . . . . . . . . . . . . . .
+                . . . . c c . . . . . . . . . .
+                . . . c 3 6 c c c c . . . . . .
+                . . . c 6 3 3 3 6 6 c . . . . .
+                . . c 3 3 3 3 3 3 6 6 c . . . .
+                . c 3 3 3 3 3 3 c c 6 6 c c c b
+                . c 3 3 3 3 3 c 5 5 c 6 c 5 5 b
+                . c c 3 3 3 6 f f 5 c 6 c 5 f f
+                . c c 6 6 6 6 f f 5 c c c 5 f f
+                . c 3 3 3 3 3 3 c 5 5 3 5 5 b .
+                . c 3 3 3 3 c c c 4 5 5 5 5 c .
+                . . c 3 3 c 5 5 b 4 4 5 5 4 c .
+                . . . c b b c 5 b b 4 4 b 5 c .
+                . . . c 5 c c 5 5 5 c 4 5 c c .
+                . . . c c c c 5 5 5 5 c c . . .
+                . . . . . . c c c c c c . . . .
+            `,
+            img`
+                . . . . . . . . . . . . . . . .
+                . . . c c . . . . . . . . . . .
+                . . c 3 6 c c c c . . . . . . .
+                . . c 6 3 3 3 6 6 c . . . . . .
+                . c 3 3 3 3 3 3 6 6 c . . . . .
+                c 3 3 3 3 3 3 c c 6 6 c c c b .
+                c 3 3 3 3 3 c 5 5 c 6 c 5 5 b .
+                c c 3 3 3 6 f f 5 c 6 c 5 f f .
+                c c 6 6 6 6 f f 5 c c c 5 f f .
+                c 3 3 3 3 c c c 5 5 3 5 5 b . .
+                c 3 3 3 c 5 5 b 5 5 5 5 5 c . .
+                . c 3 3 c 5 b b 4 4 5 5 4 4 c .
+                . . c b 5 5 5 b 4 4 4 b 5 5 c .
+                . . b c 5 5 5 c 4 4 4 5 5 5 c .
+                . . c c 5 5 5 5 c 4 c c c c . .
+                . . c c c c c c c c c c . . . .
+            `,
+            img`
+                . . . c c . . . . . . . . . . .
+                . . c 3 6 c c c c . . . . . . .
+                . . c 6 3 3 3 3 6 c . . . . . .
+                . c 3 3 3 3 3 c c 6 c . c c . .
+                c 3 3 3 3 3 c 5 5 c 6 c 5 5 b .
+                c 3 3 3 3 3 f f 5 c 6 c 5 f f .
+                c c 3 3 3 6 f f 5 c 6 c 5 f f .
+                c c 6 6 6 6 c 5 5 3 c 3 5 5 b .
+                c 3 3 3 3 3 3 c 5 5 3 5 5 b . .
+                c 3 3 3 3 3 c c 4 5 5 5 5 c c .
+                . c 3 3 3 c 5 5 c 4 5 5 4 5 5 c
+                . . c c b 5 5 5 c 4 4 4 b 4 5 b
+                . . b b c 5 5 5 c 4 4 b 5 5 4 c
+                . b 5 c c 5 5 5 5 c 4 c 5 5 5 c
+                . c 5 c c c c c c 4 c 5 5 5 5 c
+                . c c c . . . . . c c c c c c .
+            `,
+        ],
+    ]
     let enemySprite:Sprite = sprites.create(img`
         . . . . . . . . . . . c c . . .
         . . . . . . . c c c c 6 3 c . .
@@ -241,6 +391,8 @@ function createMysteryEnemy(tileLocation:tiles.Location){
         . c 5 c 5 5 5 5 c 4 4 4 c c c .
         . . c c c c c c c . . . . . . .
     `,SpriteKind.MysteryEnemy)
+    createEnemyAnimations(enemySpriteAnimations, enemySprite,150 )
+
     enemySprite.ay = 300
     let directionx: number = 0
     if (Math.randomRange(-1, 1) < 0) {
@@ -256,6 +408,8 @@ function createMysteryEnemy(tileLocation:tiles.Location){
 }
 
 function createShellEnemy(spriteLocation:Sprite){
+
+
     let enemySprite: Sprite = sprites.create(img`
         . . . . . . . . . . . . . . . .
         . . . . . . . . . . . . . . . .
@@ -275,8 +429,11 @@ function createShellEnemy(spriteLocation:Sprite){
         . . . c c c c c c c c c c c . .
     `, SpriteKind.ShellEnemy)
 
+    
+
     enemySprite.ay = 300
     enemySprite.setPosition(spriteLocation.x,spriteLocation.y)
+    enemySprite.setFlag(SpriteFlag.AutoDestroy,true)
 }
 
 
@@ -393,12 +550,12 @@ function createShootingEnemy(tileLocation:tiles.Location){
         }
     })
 }
-function createEnemyAnimations(animationList:Image[][],sprite:Sprite){
+function createEnemyAnimations(animationList:Image[][],sprite:Sprite,animationInterval:number){
     // for loop thats sets animations 
     let animationDirection = [Predicate.MovingLeft,Predicate.MovingRight,Predicate.MovingUp,Predicate.MovingDown]
     let count: number = 0 
     for(let currentAniamtion of animationList){
-        characterAnimations.loopFrames(sprite, currentAniamtion, 50, animationDirection[count])
+        characterAnimations.loopFrames(sprite, currentAniamtion, animationInterval, animationDirection[count])
         count++
     }
 }
@@ -418,7 +575,7 @@ function createGroundEnemy(tileLocation:tiles.Location){
     sprites.setDataNumber(enemySprite,"speed", enemySprite.vx)
     sprites.setDataString(enemySprite,"type","ground")
     tiles.placeOnTile(enemySprite, tileLocation)
-    createEnemyAnimations(groundEnemyObject["animation"],enemySprite)
+    createEnemyAnimations(groundEnemyObject["animation"],enemySprite,50)
 }
 function generateEnemyOnTileMap(){
     for(let tileLocation of tiles.getTilesByType(assets.tile`groundEnemySpawnTile`)){
@@ -1392,9 +1549,15 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function(){
        jumps = 0
        if(sprites.readDataBoolean(playerSprite,"ShrinkPower")){
            playerSprite.vy = -250
+           music.play(music.createSoundEffect(WaveShape.Square, 1, 600, 255, 35, 100, SoundExpressionEffect.None, InterpolationCurve.Linear), music.PlaybackMode.InBackground)
+
            return
        }
        playerSprite.vy = -200
+       music.play(music.createSoundEffect(WaveShape.Square, 1, 600, 255, 35, 100, SoundExpressionEffect.None, InterpolationCurve.Linear), music.PlaybackMode.InBackground)
+
+
+    
        
        
    }
@@ -1424,6 +1587,8 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function(){
         projectileSprite.ay = 400
         projectileSprite.vy = -50
         projectileSprite.setBounceOnWall(true)
+        music.play(music.createSoundEffect(WaveShape.Sine, 798, 600, 255, 0, 150, SoundExpressionEffect.None, InterpolationCurve.Linear), music.PlaybackMode.InBackground)
+
         if(characterAnimations.matchesRule(playerSprite, Predicate.FacingRight)){
             projectileSprite.vx = 100
         }else if(characterAnimations.matchesRule(playerSprite, Predicate.FacingLeft)){
@@ -1512,12 +1677,18 @@ scene.onHitWall(SpriteKind.Player, function(sprite,location){
                 . . . . . . . . . . . . . . . .
                 . . . . . . . . . . . . . . . .
             `,location)
+            music.play(music.createSoundEffect(WaveShape.Sine, 736, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
         }
         if(tiles.tileAtLocationEquals(location,assets.tile`unluckyTile`)){
             hitPowerBox(assets.tile`unluckyTile`,location)
+            music.play(music.createSoundEffect(WaveShape.Sine, 736, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
 
         }
         if(tiles.tileAtLocationEquals(location, assets.tile`stone1`)){
+            music.play(music.createSoundEffect(WaveShape.Sine, 736, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
             if(sprites.readDataBoolean(sprite, "GrowPower" )){
                 destroyTile(assets.tile`stone1`,location,effects.disintegrate,-50)
             }
@@ -1542,6 +1713,7 @@ scene.onHitWall(SpriteKind.Player, function(sprite,location){
                     . . . . . . . . . . . . . . . .
                     . . . . . . . . . . . . . . . .
                 `,location)
+                
             }
         }
     }
@@ -1964,6 +2136,8 @@ function createPlayerAnimations(){
 scene.onOverlapTile(SpriteKind.Player, assets.tile`lava`, function (sprite, location) {
     sprites.destroy(sprite)
     scene.cameraShake(99, 500)
+    music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
 })
 scene.onOverlapTile(SpriteKind.GrowPower,assets.tile`lava`, function(sprite,location){
     sprite.destroy()
@@ -2743,10 +2917,14 @@ sprites.onOverlap(SpriteKind.Projectile,SpriteKind.Enemy,function(sprite,otherSp
     otherSprite.destroy(effects.confetti)
     sprite.destroy()
     otherSprite.vy = -50
+    music.play(music.createSoundEffect(WaveShape.Sine, 1181, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
 })
 sprites.onOverlap(SpriteKind.Player,SpriteKind.EnemyProjectile,function(sprite,othersprite){
     sprite.destroy()
     scene.cameraShake(99,500)
+    music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
     
 })
 scene.onOverlapTile(SpriteKind.Enemy, assets.tile`lava`,function(sprite){
@@ -2754,7 +2932,11 @@ sprite.destroy(effects.warmRadial)
 })
 sprites.onOverlap(SpriteKind.Player,SpriteKind.SpinningEnemy,function(sprite,othersprite){
     sprite.destroy()
+    music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
     scene.cameraShake(99,500)
+    music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
 })
 sprites.onOverlap(SpriteKind.Player,SpriteKind.Enemy,function(sprite,otherSprite){ 
     
@@ -2764,12 +2946,17 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.Enemy,function(sprite,otherSprite
             sprite.vy = -100
             otherSprite.destroy(effects.bubbles)
             info.changeScoreBy(50)
+            music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
+
         }
         
     }else{
 
         sprite.destroy()
         scene.cameraShake(99,500)
+        music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
     }
 })
 
@@ -2779,28 +2966,45 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.MysteryEnemy,function(sprite,othe
         otherSprite.destroy()
         
         createShellEnemy(otherSprite)
+        music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
     }else{
         sprite.destroy()
+        music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
         scene.cameraShake(99,500)
     }
+})
+sprites.onOverlap(SpriteKind.ShellEnemy,SpriteKind.Enemy,function(sprite,otherSprite){
+    otherSprite.vy = -100
+    otherSprite.destroy()
+    info.changeScoreBy(50)
 })
 
 sprites.onOverlap(SpriteKind.Player,SpriteKind.ShellEnemy,function(sprite,otherSprite){
     if(Math.abs(otherSprite.vx) > 0 ){
             if(sprite.bottom < otherSprite.bottom){
-                sprite.vy = -100
+                
                 otherSprite.vx = 0
+                music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
                 
             }else{
                 sprite.destroy()
+                music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
                 scene.cameraShake(99,500)
             }
         
     }else{
         if(characterAnimations.matchesRule(sprite,Predicate.FacingRight)){
             otherSprite.vx = 101
+            music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
         }else{
             otherSprite.vx = -101
+            music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
         }
         otherSprite.setFlag(SpriteFlag.GhostThroughSprites,true)
         timer.after(100, function() {
@@ -2808,6 +3012,7 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.ShellEnemy,function(sprite,otherS
         })
     }
     sprites.setDataNumber(otherSprite,"speed",otherSprite.vx)
+    sprite.vy = -100
 })
 function spriteJump(spriteType: number) {
     for (let sprite of sprites.allOfKind(spriteType)) {
