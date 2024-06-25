@@ -10,6 +10,7 @@ export const EnemyProjectile = SpriteKind.create()
 export const SpinningEnemy = SpriteKind.create()
 export const MysteryEnemy = SpriteKind.create()
 export const ShellEnemy = SpriteKind.create()
+export const Chest = SpriteKind.create()
 }
 let level:number = 0
 let jumps: number = 1
@@ -688,6 +689,7 @@ function generateEnemyOnTileMap(){
 
 
 
+
 function selectLevel(){
     
     if(level == -1 ){
@@ -703,6 +705,7 @@ function selectLevel(){
     
     createPlayer()
     generateEnemyOnTileMap()
+    spawnTileMapChests()
 }
 function createPlayer() {
     playerSprite = sprites.create(img`
@@ -778,6 +781,8 @@ sprites.onDestroyed(SpriteKind.Player, function(sprite){
    createPlayer()
 
 })
+
+
 
 function hitPowerBox(tileImage:Image, location: tiles.Location){
     tiles.setTileAt(location, assets.tile`backGroundTile`)
@@ -1466,6 +1471,143 @@ function createCollectiblesOnTileMap() {
             `)
     }
 
+}
+function createChest(tileLocation:tiles.Location){
+    let chest:Sprite = sprites.create(img`
+        . . b b b b b b b b b b b b . .
+        . b e 4 4 4 4 4 4 4 4 4 4 e b .
+        b e 4 4 4 4 4 4 4 4 4 4 4 4 e b
+        b e 4 4 4 4 4 4 4 4 4 4 4 4 e b
+        b e 4 4 4 4 4 4 4 4 4 4 4 4 e b
+        b e e 4 4 4 4 4 4 4 4 4 4 e e b
+        b e e e e e e e e e e e e e e b
+        b e e e e e e e e e e e e e e b
+        b b b b b b b d d b b b b b b b
+        c b b b b b b c c b b b b b b c
+        c c c c c c b c c b c c c c c c
+        b e e e e e c b b c e e e e e b
+        b e e e e e e e e e e e e e e b
+        b c e e e e e e e e e e e e c b
+        b b b b b b b b b b b b b b b b
+        . b b . . . . . . . . . . b b .
+    `,SpriteKind.Chest)
+    tiles.placeOnTile(chest,tileLocation)
+
+    
+}
+function  createChestCollectibles(sprite:Sprite){
+    let collectible: Sprite = sprites.create(img`
+        . . b b b b . .
+        . b 5 5 5 5 b .
+        b 5 d 3 3 d 5 b
+        b 5 3 5 5 1 5 b
+        c 5 3 5 5 1 d c
+        c d d 1 1 d d c
+        . f d d d d f .
+        . . f f f f . .
+    `, SpriteKind.Collectible)
+    animation.runImageAnimation(collectible, [img`
+                . . b b b b . .
+                . b 5 5 5 5 b .
+                b 5 d 3 3 d 5 b
+                b 5 3 5 5 1 5 b
+                c 5 3 5 5 1 d c
+                c d d 1 1 d d c
+                . f d d d d f .
+                . . f f f f . .
+            `,
+    img`
+                . . b b b . . .
+                . b 5 5 5 b . .
+                b 5 d 3 d 5 b .
+                b 5 3 5 1 5 b .
+                c 5 3 5 1 d c .
+                c 5 d 1 d d c .
+                . f d d d f . .
+                . . f f f . . .
+            `,
+    img`
+                . . . b b . . .
+                . . b 5 5 b . .
+                . b 5 d 1 5 b .
+                . b 5 3 1 5 b .
+                . c 5 3 1 d c .
+                . c 5 1 d d c .
+                . . f d d f . .
+                . . . f f . . .
+            `,
+    img`
+        . . . b b . . .
+        . . b 5 5 b . .
+        . . b 1 1 b . .
+        . . b 5 5 b . .
+        . . b d d b . .
+        . . c d d c . .
+        . . c 3 3 c . .
+        . . . f f . . .
+    `,
+    img`
+                . . . b b . . .
+                . . b 5 5 b . .
+                . b 5 1 d 5 b .
+                . b 5 1 3 5 b .
+                . c d 1 3 5 c .
+                . c d d 1 5 c .
+                . . f d d f . .
+                . . . f f . . .
+            `,
+    img`
+                . . . b b b . .
+                . . b 5 5 5 b .
+                . b 5 d 3 d 5 b
+                . b 5 1 5 3 5 b
+                . c d 1 5 3 5 c
+                . c d d 1 d 5 c
+                . . f d d d f .
+                . . . f f f . .
+            `], Math.randomRange(75, 125), true)
+
+    collectible.setPosition(sprite.x,sprite.y)
+    collectible.setVelocity(Math.randomRange(-100,100),Math.randomRange(-150,-100))
+    collectible.setFlag(SpriteFlag.GhostThroughSprites,true)
+    collectible.ay = 150
+    collectible.fx = 50
+    sprites.setDataNumber(collectible,"velocityY",collectible.vy)
+
+    
+
+}
+scene.onHitWall(SpriteKind.Collectible,function(sprite,tileLocation){
+    if(Math.abs(sprites.readDataNumber(sprite,"velocityY")) < 50){
+        sprite.vy = 0
+        return
+    }
+    sprite.vy = (0.75)*sprites.readDataNumber(sprite,"velocityY")
+    sprites.setDataNumber(sprite, "velocityY",sprite.vy)
+})
+
+function spawnTileMapChests(){
+    for(let tileLocation of tiles.getTilesByType(assets.tile`CHEST`)){
+        createChest(tileLocation)
+        tiles.setTileAt(tileLocation,img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `)
+    }
 }
 function createCollectible(tileLocation: tiles.Location){
     let collectible: Sprite = sprites.create(img`
@@ -2181,6 +2323,28 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.ShootPower, function (sprite, ot
     sprites.setDataBoolean(sprite, "ShootPower", true)
     
     
+})
+sprites.onOverlap(SpriteKind.Player,SpriteKind.Chest,function(sprite,othersprite){
+    othersprite.setImage(img`
+        . b b b b b b b b b b b b b b .
+        b e 4 4 4 4 4 4 4 4 4 4 4 4 4 b
+        b e 4 4 4 4 4 4 4 4 4 4 4 4 e b
+        b e e 4 4 4 4 4 4 4 4 4 4 e e b
+        b b b b b b b d d b b b b b b b
+        . b b b b b b c c b b b b b b .
+        b c c c c c b c c b c c c c c b
+        b c c c c c c b b c c c c c c b
+        b c c c c c c c c c c c c c c b
+        b c c c c c c c c c c c c c c b
+        b b b b b b b b b b b b b b b b
+        b e e e e e e e e e e e e e e b
+        b e e e e e e e e e e e e e e b
+        b c e e e e e e e e e e e e c b
+        b b b b b b b b b b b b b b b b
+        . b b . . . . . . . . . . b b .
+    `)
+    createChestCollectibles(othersprite)
+    othersprite.setFlag(SpriteFlag.Ghost,true)
 })
 function batPower(){
     createBatAnimations()
