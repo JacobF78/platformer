@@ -11,7 +11,10 @@ export const SpinningEnemy = SpriteKind.create()
 export const MysteryEnemy = SpriteKind.create()
 export const ShellEnemy = SpriteKind.create()
 export const Chest = SpriteKind.create()
+export const EmptyChest = SpriteKind.create()
+export const Key = SpriteKind.create()
 }
+let keysAmount: number = 0
 let level:number = 0
 let jumps: number = 1
 let playerSprite:Sprite = null 
@@ -578,7 +581,7 @@ function createGroundEnemy(tileLocation:tiles.Location){
     tiles.placeOnTile(enemySprite, tileLocation)
     createEnemyAnimations(groundEnemyObject["animation"],enemySprite,50)
 }
-function generateEnemyOnTileMap(){
+function generateTileMapEnemys(){
     for(let tileLocation of tiles.getTilesByType(assets.tile`groundEnemySpawnTile`)){
         createGroundEnemy(tileLocation)
         tiles.setTileAt(tileLocation,img`
@@ -690,7 +693,8 @@ function generateEnemyOnTileMap(){
 
 
 
-function selectLevel(){
+function onStart(){
+    keysAmount = 0
     
     if(level == -1 ){
         tiles.setTilemap(tilemap`test`)
@@ -704,8 +708,10 @@ function selectLevel(){
 
     
     createPlayer()
-    generateEnemyOnTileMap()
-    spawnTileMapChests()
+    generateTileMapEnemys()
+    generateTileMapChest()
+    generateTileMapkeys()
+
 }
 function createPlayer() {
     playerSprite = sprites.create(img`
@@ -730,6 +736,7 @@ function createPlayer() {
     
     
     tiles.placeOnRandomTile(playerSprite, assets.tile`door`)
+    
     resetPlayerPowerUps()
     
 }
@@ -1470,8 +1477,34 @@ function createCollectiblesOnTileMap() {
                 . . . . . . . . . . . . . . . .
             `)
     }
+    
 
 }
+function generateTileMapkeys(){
+    for (let tileLocation of tiles.getTilesByType(assets.tile`key`)) {
+        createKey(tileLocation)
+        tiles.setTileAt(tileLocation, img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `)
+    }
+}
+
+
 function createChest(tileLocation:tiles.Location){
     let chest:Sprite = sprites.create(img`
         . . b b b b b b b b b b b b . .
@@ -1494,6 +1527,29 @@ function createChest(tileLocation:tiles.Location){
     tiles.placeOnTile(chest,tileLocation)
 
     
+}
+function createKey(tileLocation:tiles.Location){
+    let keySprite: Sprite = sprites.create(img`
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . 5 5 5 5 5 5 5 5 5 5 . .
+        . . . . 5 . 5 . 5 5 5 . . 5 . .
+        . . . . . . . . . . 5 . . 5 . .
+        . . . . . . . . . . 5 5 5 5 . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+    `,SpriteKind.Key)
+
+    
+    tiles.placeOnTile(keySprite,tileLocation)
 }
 function  createChestCollectibles(sprite:Sprite){
     let collectible: Sprite = sprites.create(img`
@@ -1570,23 +1626,41 @@ function  createChestCollectibles(sprite:Sprite){
     collectible.setPosition(sprite.x,sprite.y)
     collectible.setVelocity(Math.randomRange(-100,100),Math.randomRange(-150,-100))
     collectible.setFlag(SpriteFlag.GhostThroughSprites,true)
+    collectible.lifespan = 10000
     collectible.ay = 150
-    collectible.fx = 50
+    //collectible.fx = 50
     sprites.setDataNumber(collectible,"velocityY",collectible.vy)
+    sprites.setDataNumber(collectible, "velocityX", collectible.vx)
 
+    timer.after(500, function() {
+        collectible.setFlag(SpriteFlag.GhostThroughSprites, false)
+    })
     
 
 }
 scene.onHitWall(SpriteKind.Collectible,function(sprite,tileLocation){
-    if(Math.abs(sprites.readDataNumber(sprite,"velocityY")) < 50){
-        sprite.vy = 0
-        return
+    if(sprite.isHittingTile(CollisionDirection.Bottom)){
+        if (Math.abs(sprites.readDataNumber(sprite, "velocityY")) < 50) {
+            sprite.setVelocity(0,0)
+            return
+        }
+        sprite.vy = (0.75) * sprites.readDataNumber(sprite, "velocityY")
+        sprites.setDataNumber(sprite, "velocityY", sprite.vy)
+        sprite.vx = (0.75) * sprites.readDataNumber(sprite, "velocityX")
+        sprites.setDataNumber(sprite, "velocityX", sprite.vx)
     }
-    sprite.vy = (0.75)*sprites.readDataNumber(sprite,"velocityY")
-    sprites.setDataNumber(sprite, "velocityY",sprite.vy)
+    if(sprite.isHittingTile(CollisionDirection.Left)||sprite.isHittingTile(CollisionDirection.Right)){
+        sprites.setDataNumber(sprite, "velocityX", sprite.vx)
+        sprite.vx = (-1)*sprites.readDataNumber(sprite,"velocityX")
+        
+    }
+
+
 })
 
-function spawnTileMapChests(){
+
+
+function generateTileMapChest(){
     for(let tileLocation of tiles.getTilesByType(assets.tile`CHEST`)){
         createChest(tileLocation)
         tiles.setTileAt(tileLocation,img`
@@ -1683,7 +1757,7 @@ function createCollectible(tileLocation: tiles.Location){
     tiles.placeOnTile(collectible, tileLocation)
 
 }
-selectLevel()
+onStart()
 
 controller.A.onEvent(ControllerButtonEvent.Pressed, function(){
    if(jumps > 0&& !isFalling&&!isFlying){
@@ -1861,9 +1935,17 @@ scene.onHitWall(SpriteKind.Player, function(sprite,location){
     }
    
 })
-
+let delta:number = 0
 game.onUpdateInterval(1000,function(){
     spriteJump(SpriteKind.Enemy)
+})
+game.onUpdate(function(){
+    for(let sprite of sprites.allOfKind(SpriteKind.Key)){
+        sprite.y += (0.5)*Math.sin(delta)
+    }
+    delta +=0.125
+    delta = delta % 1000
+
 })
 game.onUpdate(function(){
     changeDirectionX(SpriteKind.BatPower)
@@ -1876,8 +1958,8 @@ game.onUpdate(function(){
     if(playerSprite.vy > 0){
         isFalling =true
         
-
     }
+    
     
     if(tiles.getTilesByType(assets.tile`luckyTile`).length <=0){
         tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(),assets.tile`luckyTile`)
@@ -2299,6 +2381,9 @@ scene.onOverlapTile(SpriteKind.ShellEnemy, assets.tile`lava`, function (sprite, 
 scene.onOverlapTile(SpriteKind.MysteryEnemy, assets.tile`lava`, function (sprite, location) {
     sprite.destroy()
 })
+scene.onOverlapTile(SpriteKind.Collectible, assets.tile`lava`, function (sprite, location) {
+    sprite.destroy()
+})
 scene.onOverlapTile(SpriteKind.Player, assets.tile`conveyerMove`, function (sprite, location) {
    playerSprite.vx = 40
 
@@ -2325,6 +2410,9 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.ShootPower, function (sprite, ot
     
 })
 sprites.onOverlap(SpriteKind.Player,SpriteKind.Chest,function(sprite,othersprite){
+    if(keysAmount <=0){
+        return
+    }
     othersprite.setImage(img`
         . b b b b b b b b b b b b b b .
         b e 4 4 4 4 4 4 4 4 4 4 4 4 4 b
@@ -2343,9 +2431,32 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.Chest,function(sprite,othersprite
         b b b b b b b b b b b b b b b b
         . b b . . . . . . . . . . b b .
     `)
-    createChestCollectibles(othersprite)
-    othersprite.setFlag(SpriteFlag.Ghost,true)
+    othersprite.setKind(SpriteKind.EmptyChest)
+
+    let amount:number = Math.randomRange(4,50)
+    while(amount > 0){
+        createChestCollectibles(othersprite)
+        amount--
+    }
+
+    keysAmount--
+
+    checkCollectedChestAmount()
 })
+
+
+function checkCollectedChestAmount(){
+    if(sprites.allOfKind(SpriteKind.Chest).length == 0){
+        for(let exitLocation of tiles.getTilesByType(assets.tile`closedexit`)){
+            tiles.setTileAt(exitLocation,assets.tile`openexit`)
+        }
+    }
+}
+sprites.onOverlap(SpriteKind.Player,SpriteKind.Key,function(sprite,othersprite){
+    othersprite.destroy()
+    keysAmount++
+})
+
 function batPower(){
     createBatAnimations()
     controller.moveSprite(playerSprite, 100,100)
@@ -3076,6 +3187,7 @@ function changeDirectionX(spriteType:number){
     }
 }
 
+
 //enemy stuff
 sprites.onOverlap(SpriteKind.Projectile,SpriteKind.Enemy,function(sprite,otherSprite){
     otherSprite.destroy(effects.confetti)
@@ -3084,6 +3196,13 @@ sprites.onOverlap(SpriteKind.Projectile,SpriteKind.Enemy,function(sprite,otherSp
     music.play(music.createSoundEffect(WaveShape.Sine, 1181, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
 
 })
+scene.onOverlapTile(SpriteKind.Player,assets.tile`closedexit`,function(sprite,location){
+    sprite.sayText("i must open all the chests",1000)
+})
+scene.onOverlapTile(SpriteKind.Player, assets.tile`openexit`, function (sprite, location) {
+    game.gameOver(true)
+})
+
 sprites.onOverlap(SpriteKind.Player,SpriteKind.EnemyProjectile,function(sprite,othersprite){
     sprite.destroy()
     scene.cameraShake(99,500)
