@@ -13,13 +13,17 @@ export const ShellEnemy = SpriteKind.create()
 export const Chest = SpriteKind.create()
 export const EmptyChest = SpriteKind.create()
 export const Key = SpriteKind.create()
+export const Shop = SpriteKind.create()
+
 }
 let keysAmount: number = 0
 let level:number = 0
+let menuSprite:miniMenu.MenuSprite = null
 let jumps: number = 1
 let playerSprite:Sprite = null 
 let isFalling: boolean = false
 let isFlying: boolean = false
+let playerInvintoryList: Sprite[] = []
 info.setScore(0)
 let groundEnemyObject = {
     "image":[
@@ -689,12 +693,45 @@ function generateTileMapEnemys(){
     }
 }
 
+function createShopSprite(tileLocation: tiles.Location){
+    let shopSprite = sprites.create(img`
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . b 5 5 b . . .
+        . . . . . . b b b b b b . . . .
+        . . . . . b b 5 5 5 5 5 b . . .
+        . b b b b b 5 5 5 5 5 5 5 b . .
+        . b d 5 b 5 5 5 5 5 5 5 5 b . .
+        . . b 5 5 b 5 d 1 f 5 d 4 f . .
+        . . b d 5 5 b 1 f f 5 4 4 c . .
+        b b d b 5 5 5 d f b 4 4 4 4 b .
+        b d d c d 5 5 b 5 4 4 4 4 4 4 b
+        c d d d c c b 5 5 5 5 5 5 5 b .
+        c b d d d d d 5 5 5 5 5 5 5 b .
+        . c d d d d d d 5 5 5 5 5 d b .
+        . . c b d d d d d 5 5 5 b b . .
+        . . . c c c c c c c c b b . . .
+    `,SpriteKind.Shop)
+    tiles.placeOnTile(shopSprite,tileLocation)
 
+    spriteutils.onSpriteUpdateInterval(shopSprite, 100,function(sprite){
+        if(menuSprite == null){
+            return
+        }
+        let distanceToPlayer = spriteutils.distanceBetween(shopSprite,playerSprite)
+        if(distanceToPlayer > 48){
+            menuSprite.close()
+            menuSprite = null
+        }
+    })
+    
+}
 
 
 
 function onStart(){
     keysAmount = 0
+
     
     if(level == -1 ){
         tiles.setTilemap(tilemap`test`)
@@ -711,6 +748,7 @@ function onStart(){
     generateTileMapEnemys()
     generateTileMapChest()
     generateTileMapkeys()
+    createShopSprite(tiles.getTileLocation(28,13))
 
 }
 function createPlayer() {
@@ -789,7 +827,51 @@ sprites.onDestroyed(SpriteKind.Player, function(sprite){
 
 })
 
+sprites.onOverlap(SpriteKind.Player,SpriteKind.Shop,function(sprite,othersprite){
+    if(menuSprite){
+        return
+    }
+    menuSprite = miniMenu.createMenu(miniMenu.createMenuItem("50", powerUpObject["image"][0]), miniMenu.createMenuItem("100", powerUpObject["image"][1]))
+    
+    menuSprite.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns,1)
+    menuSprite.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 4)
+    menuSprite.setStyleProperty(miniMenu.StyleKind.DefaultAndSelected,miniMenu.StyleProperty.IconOnly,1)
+    menuSprite.setDimensions(50,75)
+    menuSprite.setPosition(scene.cameraProperty(CameraProperty.X), scene.cameraProperty(CameraProperty.Y))
+    menuSprite.setTitle("50")
+    menuSprite.onSelectionChanged(function(selection,selectedIndex){
+        menuSprite.setTitle(selection)       
+    })
+    menuSprite.setMenuStyleProperty(miniMenu.MenuStyleProperty.Border,2)
+    menuSprite.setMenuStyleProperty(miniMenu.MenuStyleProperty.BorderColor,1)
+    menuSprite.setMenuStyleProperty(miniMenu.MenuStyleProperty.BackgroundColor,14)
+    menuSprite.onButtonPressed(controller.B,function(selection,selectedIndex){
+        if(selectedIndex < powerUpObject["image"].length){
+            if(info.score() < parseFloat(selection)){
+                playerSprite.sayText("MORE MONEY",5000)
+                return
+            }
+            info.changeScoreBy(-parseFloat(selection))
+            playerInvintoryList.push(sprites.create(powerUpObject["image"][selectedIndex],powerUpObject["kind"][selectedIndex]))
+            playerSprite.sayText(playerInvintoryList.length,5000)
 
+
+        }
+    })
+
+})
+controller.player2.A.onEvent(ControllerButtonEvent.Pressed, function() {
+    if(playerInvintoryList.length <=0){
+        playerSprite.sayText("no items", 5000)
+        return
+    
+    }
+    let powerUp:Sprite = playerInvintoryList.removeAt(0)
+    powerUp.setPosition(playerSprite.x,playerSprite.y - 25)
+    powerUp.ay = 250
+    playerSprite.sayText(playerInvintoryList.length,5000)
+
+})
 
 function hitPowerBox(tileImage:Image, location: tiles.Location){
     tiles.setTileAt(location, assets.tile`backGroundTile`)
