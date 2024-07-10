@@ -14,6 +14,8 @@ export const Chest = SpriteKind.create()
 export const EmptyChest = SpriteKind.create()
 export const Key = SpriteKind.create()
 export const Shop = SpriteKind.create()
+export const HeartPower = SpriteKind.create()
+export const Switch = SpriteKind.create()
 
 }
 let keysAmount: number = 0
@@ -22,6 +24,7 @@ let menuSprite:miniMenu.MenuSprite = null
 let jumps: number = 1
 let playerSprite:Sprite = null 
 let isFalling: boolean = false
+
 let isFlying: boolean = false
 let playerInvintoryList: Sprite[] = []
 info.setScore(0)
@@ -731,6 +734,7 @@ function createShopSprite(tileLocation: tiles.Location){
 
 function onStart(){
     keysAmount = 0
+    info.setLife(5)
 
     
     if(level == -1 ){
@@ -748,7 +752,9 @@ function onStart(){
     generateTileMapEnemys()
     generateTileMapChest()
     generateTileMapkeys()
-    createShopSprite(tiles.getTileLocation(28,13))
+    generateTileMapShop()
+    generateTileMapSwitchWall()
+    
 
 }
 function createPlayer() {
@@ -791,6 +797,13 @@ function resetPlayerPowerUps(){
     characterAnimations.setCharacterAnimationsEnabled(playerSprite, true)
     createPlayerAnimations()
 }
+
+sprites.onOverlap(SpriteKind.Player,SpriteKind.Switch,function(sprite,othersprite){
+    let wallSprite = sprites.readDataSprite(othersprite,"myWall")
+    tiles.setWallAt(wallSprite.tilemapLocation(),false)
+    wallSprite.destroy()
+    othersprite.destroy()
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Collectible, function (sprite, otherSprite) {
     sprites.destroy(otherSprite)
     info.changeScoreBy(50)
@@ -831,32 +844,35 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.Shop,function(sprite,othersprite)
     if(menuSprite){
         return
     }
-    menuSprite = miniMenu.createMenu(miniMenu.createMenuItem("50", powerUpObject["image"][0]), miniMenu.createMenuItem("100", powerUpObject["image"][1]))
+    menuSprite = miniMenu.createMenuFromArray(menuItemList)
     
     menuSprite.setMenuStyleProperty(miniMenu.MenuStyleProperty.Columns,1)
     menuSprite.setMenuStyleProperty(miniMenu.MenuStyleProperty.Rows, 4)
-    menuSprite.setStyleProperty(miniMenu.StyleKind.DefaultAndSelected,miniMenu.StyleProperty.IconOnly,1)
-    menuSprite.setDimensions(50,75)
+    menuSprite.setStyleProperty(miniMenu.StyleKind.DefaultAndSelected,miniMenu.StyleProperty.IconTextSpacing,1)
+    menuSprite.setDimensions(80,90)
     menuSprite.setPosition(scene.cameraProperty(CameraProperty.X), scene.cameraProperty(CameraProperty.Y))
     menuSprite.setTitle("50")
     menuSprite.onSelectionChanged(function(selection,selectedIndex){
-        menuSprite.setTitle(selection)       
+        menuSprite.setTitle(menuItemCostList[selectedIndex].toString())       
     })
     menuSprite.setMenuStyleProperty(miniMenu.MenuStyleProperty.Border,2)
     menuSprite.setMenuStyleProperty(miniMenu.MenuStyleProperty.BorderColor,1)
     menuSprite.setMenuStyleProperty(miniMenu.MenuStyleProperty.BackgroundColor,14)
     menuSprite.onButtonPressed(controller.B,function(selection,selectedIndex){
-        if(selectedIndex < powerUpObject["image"].length){
-            if(info.score() < parseFloat(selection)){
-                playerSprite.sayText("MORE MONEY",5000)
-                return
-            }
-            info.changeScoreBy(-parseFloat(selection))
-            playerInvintoryList.push(sprites.create(powerUpObject["image"][selectedIndex],powerUpObject["kind"][selectedIndex]))
-            playerSprite.sayText(playerInvintoryList.length,5000)
-
-
+        
+        if(info.score() < menuItemCostList[selectedIndex]){
+            playerSprite.sayText("MORE MONEY",5000)
+            return
+        }else if(playerInvintoryList.length >= 3){
+            playerSprite.sayText("my invintory is full")
+            return
         }
+        info.changeScoreBy(-menuItemCostList[selectedIndex])
+        playerInvintoryList.push(sprites.create(powerUpObject["image"][selectedIndex],powerUpObject["kind"][selectedIndex]))
+        playerSprite.sayText(playerInvintoryList.length,5000)
+
+
+    
     })
 
 })
@@ -1740,7 +1756,116 @@ scene.onHitWall(SpriteKind.Collectible,function(sprite,tileLocation){
 
 })
 
+function createSwitchAndWall(switchTile:tiles.Location,wallTile:tiles.Location){
+    let switchSprite:Sprite = sprites.create(img`
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . 2 2 . . .
+        . . . . . . . . . . b 2 2 . . .
+        . . . . . . . . . b b b . . . .
+        . . . . . . . . b b b . . . . .
+        . . . . . . . b b b . . . . . .
+        . . . . . . b b b . . . . . . .
+        . . . b b b b b b b b b . . . .
+        . . . b b b b b b b b b . . . .
+        . . . b b b b b b b b b . . . .
+    `,SpriteKind.Switch)
+    let wallSprite:Sprite = sprites.create(img`
+        f f b b b b b b b b b b b b f f
+        f f b b b b b b b b b b b b f f
+        f f b b b b b b b b b b b b f f
+        f f c c c c c c c c c c c c f f
+        f f b b b b b b b b b b b b f f
+        f f b b b b b b b b b b b b f f
+        f f b b b b b b b b b b b b f f
+        f f c c c c c c c c c c c c f f
+        f f b b b b b b b b b b b b f f
+        f f b b b b b b b b b b b b f f
+        f f b b b b b b b b b b b b f f
+        f f c c c c c c c c c c c c f f
+        f f b b b b b b b b b b b b f f
+        f f b b b b b b b b b b b b f f
+        f f b b b b b b b b b b b b f f
+        f f c c c c c c c c c c c c f f
+    `,SpriteKind.Tile)
+    tiles.placeOnTile(switchSprite,switchTile)
+    tiles.placeOnTile(wallSprite,wallTile)
 
+    sprites.setDataSprite(switchSprite,"myWall", wallSprite)
+    
+}
+
+function generateTileMapSwitchWall(){
+    for(let i = 0; i < tiles.getTilesByType(assets.tile`switch`).length;i++){
+        let switchTile = tiles.getTilesByType(assets.tile`switch`)[i]
+        let doorTile = tiles.getTilesByType(assets.tile`closedDoor`)[i]
+        createSwitchAndWall(switchTile,doorTile)
+        tiles.setTileAt(switchTile,img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `)
+        tiles.setTileAt(doorTile, img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `)
+    }
+}
+function generateTileMapShop(){
+    for (let tileLocation of tiles.getTilesByType(assets.tile`shopSpawn`)) {
+        createShopSprite(tileLocation)
+        tiles.setTileAt(tileLocation, img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `)
+    }
+}
 
 function generateTileMapChest(){
     for(let tileLocation of tiles.getTilesByType(assets.tile`CHEST`)){
@@ -3151,6 +3276,11 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.BatPower, function (sprite, othe
     
 
 })
+
+sprites.onOverlap(SpriteKind.Player,SpriteKind.HeartPower,function(sprite,othersprite){
+    othersprite.destroy()
+    info.changeLifeBy(1)
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.ShrinkPower, function (sprite, otherSprite) {
     otherSprite.destroy()
     resetPlayerPowerUps()
@@ -3255,10 +3385,45 @@ let powerUpObject = {
             .......eccccc.......
             ....................
             ....................
+        `,
+        img`
+            ....................
+            ....................
+            ....................
+            ....................
+            ....................
+            ....................
+            .......22...22......
+            ......2322.2222.....
+            ......232222222.....
+            ......222222222.....
+            .......22222b2......
+            ........222b2.......
+            .........222........
+            ..........2.........
+            ....................
+            ....................
+            ....................
+            ....................
+            ....................
+            ....................
         `
         ],
-    "kind":[SpriteKind.GrowPower,SpriteKind.ShootPower,SpriteKind.ShrinkPower,SpriteKind.BatPower]
+    "kind":[SpriteKind.GrowPower,SpriteKind.ShootPower,SpriteKind.ShrinkPower,SpriteKind.BatPower,SpriteKind.HeartPower]
 }
+
+let menuItemList: miniMenu.MenuItem[] = [
+    miniMenu.createMenuItem("grow power", powerUpObject["image"][0]),
+    miniMenu.createMenuItem("shoot power", powerUpObject["image"][1]),
+    miniMenu.createMenuItem("shrink power", powerUpObject["image"][2]),
+    miniMenu.createMenuItem("bat power", powerUpObject["image"][3]),
+    miniMenu.createMenuItem("health container", powerUpObject["image"][4])
+]
+
+let menuItemCostList:number[] = [
+    250,300,150,500,1000
+    
+]
 function changeDirectionX(spriteType:number){
     for (let sprite of sprites.allOfKind(spriteType)) {
         if (sprite.isHittingTile(CollisionDirection.Left) || sprite.isHittingTile(CollisionDirection.Right)) {
@@ -3287,6 +3452,7 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`openexit`, function (sprite, 
 
 sprites.onOverlap(SpriteKind.Player,SpriteKind.EnemyProjectile,function(sprite,othersprite){
     sprite.destroy()
+    info.changeLifeBy(-1)
     scene.cameraShake(99,500)
     music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
 
@@ -3297,6 +3463,7 @@ sprite.destroy(effects.warmRadial)
 })
 sprites.onOverlap(SpriteKind.Player,SpriteKind.SpinningEnemy,function(sprite,othersprite){
     sprite.destroy()
+    info.changeLifeBy(-1)
     music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
 
     scene.cameraShake(99,500)
@@ -3319,6 +3486,7 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.Enemy,function(sprite,otherSprite
     }else{
 
         sprite.destroy()
+        info.changeLifeBy(-1)
         scene.cameraShake(99,500)
         music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
 
@@ -3335,6 +3503,7 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.MysteryEnemy,function(sprite,othe
 
     }else{
         sprite.destroy()
+        info.changeLifeBy(-1)
         music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
 
         scene.cameraShake(99,500)
@@ -3355,6 +3524,7 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.ShellEnemy,function(sprite,otherS
 
                 
             }else{
+                info.changeLifeBy(-1)
                 sprite.destroy()
                 music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
 
