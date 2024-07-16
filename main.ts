@@ -716,6 +716,116 @@ function createShopSprite(tileLocation: tiles.Location){
         . . . c c c c c c c c b b . . .
     `,SpriteKind.Shop)
     tiles.placeOnTile(shopSprite,tileLocation)
+    animation.runImageAnimation(shopSprite,[
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . b 5 b . . .
+            . . . . . . . . . b 5 b . . . .
+            . . . . . . b b b b b b . . . .
+            . . . . . b b 5 5 5 5 5 b . . .
+            . b b b b b 5 5 5 5 5 5 5 b . .
+            . b d 5 b 5 5 5 5 5 5 5 5 b . .
+            . . b 5 5 b 5 d 1 f 5 d 4 f . .
+            . . b d 5 5 b 1 f f 5 4 4 c . .
+            b b d b 5 5 5 d f b 4 4 4 4 4 b
+            b d d c d 5 5 b 5 4 4 4 4 4 b .
+            c d d d c c b 5 5 5 5 5 5 5 b .
+            c b d d d d d 5 5 5 5 5 5 5 b .
+            . c d d d d d d 5 5 5 5 5 d b .
+            . . c b d d d d d 5 5 5 b b . .
+            . . . c c c c c c c c b b . . .
+        `,
+        img`
+            . . . . . . . . . . b 5 b . . .
+            . . . . . . . . . b 5 b . . . .
+            . . . . . . . . . b c . . . . .
+            . . . . . . b b b b b b . . . .
+            . . . . . b b 5 5 5 5 5 b . . .
+            . . . . b b 5 d 1 f 5 5 d f . .
+            . . . . b 5 5 1 f f 5 d 4 c . .
+            . . . . b 5 5 d f b d d 4 4 . .
+            b d d d b b d 5 5 5 4 4 4 4 4 b
+            b b d 5 5 5 b 5 5 4 4 4 4 4 b .
+            b d c 5 5 5 5 d 5 5 5 5 5 b . .
+            c d d c d 5 5 b 5 5 5 5 5 5 b .
+            c b d d c c b 5 5 5 5 5 5 5 b .
+            . c d d d d d d 5 5 5 5 5 d b .
+            . . c b d d d d d 5 5 5 b b . .
+            . . . c c c c c c c c b b . . .
+        `,
+        img`
+            . . . . . . . . . . b 5 b . . .
+            . . . . . . . . . b 5 b . . . .
+            . . . . . . b b b b b b . . . .
+            . . . . . b b 5 5 5 5 5 b . . .
+            . . . . b b 5 d 1 f 5 d 4 c . .
+            . . . . b 5 5 1 f f d d 4 4 4 b
+            . . . . b 5 5 d f b 4 4 4 4 b .
+            . . . b d 5 5 5 5 4 4 4 4 b . .
+            . . b d d 5 5 5 5 5 5 5 5 b . .
+            . b d d d d 5 5 5 5 5 5 5 5 b .
+            b d d d b b b 5 5 5 5 5 5 5 b .
+            c d d b 5 5 d c 5 5 5 5 5 5 b .
+            c b b d 5 d c d 5 5 5 5 5 5 b .
+            . b 5 5 b c d d 5 5 5 5 5 d b .
+            b b c c c d d d d 5 5 5 b b . .
+            . . . c c c c c c c c b b . . .
+        `,
+        img`
+            . . . . . . . . . . b 5 b . . .
+            . . . . . . . . . b 5 b . . . .
+            . . . . . . b b b b b b . . . .
+            . . . . . b b 5 5 5 5 5 b . . .
+            . . . . b b 5 d 1 f 5 d 4 c . .
+            . . . . b 5 5 1 f f d d 4 4 4 b
+            . . . . b 5 5 d f b 4 4 4 4 b .
+            . . . b d 5 5 5 5 4 4 4 4 b . .
+            . b b d d d 5 5 5 5 5 5 5 b . .
+            b d d d b b b 5 5 5 5 5 5 5 b .
+            c d d b 5 5 d c 5 5 5 5 5 5 b .
+            c b b d 5 d c d 5 5 5 5 5 5 b .
+            c b 5 5 b c d d 5 5 5 5 5 5 b .
+            b b c c c d d d 5 5 5 5 5 d b .
+            . . . . c c d d d 5 5 5 b b . .
+            . . . . . . c c c c c b b . . .
+        `,
+        img`
+            . . . . . . . . . . b 5 b . . .
+            . . . . . . . . . b 5 b . . . .
+            . . . . . . b b b b b b . . . .
+            . . . . . b b 5 5 5 5 5 b . . .
+            . . . . b b 5 d 1 f 5 5 d f . .
+            . . . . b 5 5 1 f f 5 d 4 c . .
+            . . . . b 5 5 d f b d d 4 4 . .
+            . b b b d 5 5 5 5 5 4 4 4 4 4 b
+            b d d d b b d 5 5 4 4 4 4 4 b .
+            b b d 5 5 5 b 5 5 5 5 5 5 b . .
+            c d c 5 5 5 5 d 5 5 5 5 5 5 b .
+            c b d c d 5 5 b 5 5 5 5 5 5 b .
+            . c d d c c b d 5 5 5 5 5 d b .
+            . . c b d d d d d 5 5 5 b b . .
+            . . . c c c c c c c c b b . . .
+            . . . . . . . . . . . . . . . .
+        `,
+        img`
+            . . . . . . . . . b 5 b . . . .
+            . . . . . . . . . b 5 b . . . .
+            . . . . . . b b b b b b . . . .
+            . . . . . b b 5 5 5 5 5 b . . .
+            . . . . b b 5 b c 5 5 d 4 c . .
+            . b b b b 5 5 5 b f d d 4 4 4 b
+            . b d 5 b 5 5 b c b 4 4 4 4 b .
+            . . b 5 5 b 5 5 5 4 4 4 4 b . .
+            . . b d 5 5 b 5 5 5 5 5 5 b . .
+            . b d b 5 5 5 d 5 5 5 5 5 5 b .
+            b d d c d 5 5 b 5 5 5 5 5 5 b .
+            c d d d c c b 5 5 5 5 5 5 5 b .
+            c b d d d d d 5 5 5 5 5 5 5 b .
+            . c d d d d d d 5 5 5 5 5 d b .
+            . . c b d d d d d 5 5 5 b b . .
+            . . . c c c c c c c c b b . . .
+        `
+    ],100,true)
 
     spriteutils.onSpriteUpdateInterval(shopSprite, 100,function(sprite){
         if(menuSprite == null){
@@ -730,22 +840,23 @@ function createShopSprite(tileLocation: tiles.Location){
     
 }
 
-
+let tileMapLevels = [
+    tilemap`level1`
+]
 
 function onStart(){
     keysAmount = 0
     info.setLife(5)
 
-    
-    if(level == -1 ){
-        tiles.setTilemap(tilemap`test`)
+    if (level >= 0 && level < tileMapLevels.length) {
+        tiles.setTilemap(tileMapLevels[level])
         createCollectiblesOnTileMap()
         
-        
-    }else if(level == 0){
+    }else{
         tiles.setTilemap(tilemap`test2`)
+        //tiles.setTilemap(tilemap`test`)
         createCollectiblesOnTileMap()
-    }
+     }
 
     
     createPlayer()
@@ -801,8 +912,174 @@ function resetPlayerPowerUps(){
 sprites.onOverlap(SpriteKind.Player,SpriteKind.Switch,function(sprite,othersprite){
     let wallSprite = sprites.readDataSprite(othersprite,"myWall")
     tiles.setWallAt(wallSprite.tilemapLocation(),false)
-    wallSprite.destroy()
-    othersprite.destroy()
+    
+    othersprite.setImage(img`
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . 2 2 2 . . . . . . . . . . . .
+        . 2 2 2 . . . . . . . . . . . .
+        . 2 2 2 b . . . . . . . . . . .
+        . . . b b b . . . . . . . . . .
+        . . . . b b b . . . . . . . . .
+        . . . . . b b b . . . . . . . .
+        . . . . . . b b b . . . . . . .
+        . . . b b b b b b b b b . . . .
+        . . . b b b b b b b b b . . . .
+        . . . b b b b b b b b b . . . .
+    `)
+    othersprite.setFlag(SpriteFlag.Ghost,true)
+    wallSprite.lifespan = 400 
+    animation.runImageAnimation(wallSprite,[
+        img`
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f c c c c c c c c c c c c f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f c c c c c c c c c c c c f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f c c c c c c c c c c c c f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `,
+        img`
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f c c c c c c c c c c c c f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f c c c c c c c c c c c c f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f c c c c c c c c c c c c f f
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `,
+        img`
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f c c c c c c c c c c c c f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f c c c c c c c c c c c c f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `,
+        img`
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f c c c c c c c c c c c c f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f c c c c c c c c c c c c f f
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `,
+        img`
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f c c c c c c c c c c c c f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `,
+        img`
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            f f c c c c c c c c c c c c f f
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `,
+        img`
+            f f b b b b b b b b b b b b f f
+            f f b b b b b b b b b b b b f f
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `
+    ],50,false)
+
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Collectible, function (sprite, otherSprite) {
     sprites.destroy(otherSprite)
@@ -822,18 +1099,22 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`spawnTile`,function(sprite,lo
 scene.onOverlapTile(SpriteKind.Player, assets.tile`hazardTile`,function(sprite,location){
     sprites.destroy(sprite)
     scene.cameraShake(99,500)
+    info.changeLifeBy(-1)
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`rightHazardTile`, function (sprite, location) {
     sprites.destroy(sprite)
     scene.cameraShake(99, 500)
+    info.changeLifeBy(-1)
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`leftHazardTile`, function (sprite, location) {
     sprites.destroy(sprite)
     scene.cameraShake(99, 500)
+    info.changeLifeBy(-1)
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`topHazardTile`, function (sprite, location) {
     sprites.destroy(sprite)
     scene.cameraShake(99, 500)
+    info.changeLifeBy(-1)
 })
 sprites.onDestroyed(SpriteKind.Player, function(sprite){
    createPlayer()
@@ -2080,7 +2361,13 @@ scene.onHitWall(SpriteKind.Player, function(sprite,location){
         if(tiles.tileAtLocationEquals(location, assets.tile`luckyTile`)){
             let targetLocation: tiles.Location = tiles.getTileLocation(location.column  , location.row-1)
             //createCollectible(targetLocation)
-            createPowerUp(randint(0,powerUpObject["image"].length-1),targetLocation)
+            if(level == 0){
+                createPowerUp( 1, targetLocation)
+                
+            }else{
+                createPowerUp(randint(0, powerUpObject["image"].length - 1), targetLocation)
+            }
+            
             // tiles.setTileAt(location,assets.tile`unluckyTile`)
             hitPowerBox(img`
                 . . . . . . . . . . . . . . . .
