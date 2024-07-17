@@ -841,32 +841,60 @@ function createShopSprite(tileLocation: tiles.Location){
 }
 
 let tileMapLevels = [
-    tilemap`level1`
+    tilemap`level1`,
+    tilemap`level2`
 ]
 
 function onStart(){
     keysAmount = 0
     info.setLife(5)
 
-    if (level >= 0 && level < tileMapLevels.length) {
+    // if (level >= 0 && level < tileMapLevels.length) {
+    //     tiles.setTilemap(tileMapLevels[level])
+    //     createCollectiblesOnTileMap()
+        
+    // }else{
+    //     tiles.setTilemap(tilemap`test2`)
+    //     //tiles.setTilemap(tilemap`test`)
+    //     createCollectiblesOnTileMap()
+    //  }
+        createPlayer()
+        createLevel()
+       
+    // generateTileMapEnemys()
+    // generateTileMapChest()
+    // generateTileMapkeys()
+    // generateTileMapShop()
+    // generateTileMapSwitchWall()
+    
+
+}
+function createLevel(){
+    
+    let allSpriteKindList = [SpriteKind.Collectible,SpriteKind.EnemyProjectile,SpriteKind.SpinningEnemy,SpriteKind.MysteryEnemy,SpriteKind.ShellEnemy,SpriteKind.EmptyChest,SpriteKind.Key,SpriteKind.Shop,SpriteKind.Switch,SpriteKind.Enemy]
+    for(let spriteType of allSpriteKindList){
+        sprites.destroyAllSpritesOfKind(spriteType)
+    }
+   if(level >= 0 && level < tileMapLevels.length) {
         tiles.setTilemap(tileMapLevels[level])
         createCollectiblesOnTileMap()
-        
-    }else{
+
+    }else {
         tiles.setTilemap(tilemap`test2`)
         //tiles.setTilemap(tilemap`test`)
         createCollectiblesOnTileMap()
-     }
-
-    
-    createPlayer()
+    }
     generateTileMapEnemys()
     generateTileMapChest()
     generateTileMapkeys()
     generateTileMapShop()
     generateTileMapSwitchWall()
+    placePlayerOnTileMap()
     
-
+    
+}
+function placePlayerOnTileMap() {
+    tiles.placeOnRandomTile(playerSprite, assets.tile`door`)
 }
 function createPlayer() {
     playerSprite = sprites.create(img`
@@ -890,7 +918,7 @@ function createPlayer() {
     scene.cameraFollowSprite(playerSprite)
     
     
-    tiles.placeOnRandomTile(playerSprite, assets.tile`door`)
+    
     
     resetPlayerPowerUps()
     
@@ -1099,25 +1127,28 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`spawnTile`,function(sprite,lo
 scene.onOverlapTile(SpriteKind.Player, assets.tile`hazardTile`,function(sprite,location){
     sprites.destroy(sprite)
     scene.cameraShake(99,500)
-    info.changeLifeBy(-1)
+    
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`rightHazardTile`, function (sprite, location) {
     sprites.destroy(sprite)
     scene.cameraShake(99, 500)
-    info.changeLifeBy(-1)
+    
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`leftHazardTile`, function (sprite, location) {
     sprites.destroy(sprite)
     scene.cameraShake(99, 500)
-    info.changeLifeBy(-1)
+    
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`topHazardTile`, function (sprite, location) {
     sprites.destroy(sprite)
     scene.cameraShake(99, 500)
-    info.changeLifeBy(-1)
+    
 })
 sprites.onDestroyed(SpriteKind.Player, function(sprite){
-   createPlayer()
+    createPlayer()
+    placePlayerOnTileMap()
+    
+   info.changeLifeBy(-1)
 
 })
 
@@ -2854,6 +2885,7 @@ function createPlayerAnimations(){
 scene.onOverlapTile(SpriteKind.Player, assets.tile`lava`, function (sprite, location) {
     sprites.destroy(sprite)
     scene.cameraShake(99, 500)
+    
     music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
 
 })
@@ -3734,12 +3766,14 @@ scene.onOverlapTile(SpriteKind.Player,assets.tile`closedexit`,function(sprite,lo
     sprite.sayText("i must open all the chests",1000)
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`openexit`, function (sprite, location) {
-    game.gameOver(true)
+    level += 1
+    createLevel()
+    //game.game
 })
 
 sprites.onOverlap(SpriteKind.Player,SpriteKind.EnemyProjectile,function(sprite,othersprite){
     sprite.destroy()
-    info.changeLifeBy(-1)
+    
     scene.cameraShake(99,500)
     music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
 
@@ -3750,7 +3784,7 @@ sprite.destroy(effects.warmRadial)
 })
 sprites.onOverlap(SpriteKind.Player,SpriteKind.SpinningEnemy,function(sprite,othersprite){
     sprite.destroy()
-    info.changeLifeBy(-1)
+    
     music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
 
     scene.cameraShake(99,500)
@@ -3773,7 +3807,7 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.Enemy,function(sprite,otherSprite
     }else{
 
         sprite.destroy()
-        info.changeLifeBy(-1)
+        
         scene.cameraShake(99,500)
         music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
 
@@ -3790,7 +3824,7 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.MysteryEnemy,function(sprite,othe
 
     }else{
         sprite.destroy()
-        info.changeLifeBy(-1)
+        
         music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
 
         scene.cameraShake(99,500)
@@ -3811,7 +3845,7 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.ShellEnemy,function(sprite,otherS
 
                 
             }else{
-                info.changeLifeBy(-1)
+                
                 sprite.destroy()
                 music.play(music.createSoundEffect(WaveShape.Sine, 1048, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
 
