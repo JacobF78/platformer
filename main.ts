@@ -24,7 +24,7 @@ let menuSprite:miniMenu.MenuSprite = null
 let jumps: number = 1
 let playerSprite:Sprite = null 
 let isFalling: boolean = false
-
+let powerUpTileCountList:number[] = []
 let isFlying: boolean = false
 let playerInvintoryList: Sprite[] = []
 info.setScore(0)
@@ -846,31 +846,16 @@ let tileMapLevels = [
 ]
 
 function onStart(){
-    keysAmount = 0
-    info.setLife(5)
-
-    // if (level >= 0 && level < tileMapLevels.length) {
-    //     tiles.setTilemap(tileMapLevels[level])
-    //     createCollectiblesOnTileMap()
-        
-    // }else{
-    //     tiles.setTilemap(tilemap`test2`)
-    //     //tiles.setTilemap(tilemap`test`)
-    //     createCollectiblesOnTileMap()
-    //  }
-        createPlayer()
-        createLevel()
-       
-    // generateTileMapEnemys()
-    // generateTileMapChest()
-    // generateTileMapkeys()
-    // generateTileMapShop()
-    // generateTileMapSwitchWall()
     
-
+    info.setLife(5)
+    
+    createPlayer()
+    createLevel()
+    
 }
 function createLevel(){
-    
+
+    keysAmount = 0
     let allSpriteKindList = [SpriteKind.Collectible,SpriteKind.EnemyProjectile,SpriteKind.SpinningEnemy,SpriteKind.MysteryEnemy,SpriteKind.ShellEnemy,SpriteKind.EmptyChest,SpriteKind.Key,SpriteKind.Shop,SpriteKind.Switch,SpriteKind.Enemy]
     for(let spriteType of allSpriteKindList){
         sprites.destroyAllSpritesOfKind(spriteType)
@@ -891,6 +876,12 @@ function createLevel(){
     generateTileMapSwitchWall()
     placePlayerOnTileMap()
     
+    powerUpTileCountList[0] = tiles.getTilesByType(assets.tile`growTile`).length
+    powerUpTileCountList[0] = tiles.getTilesByType(assets.tile`shootTile`).length
+    powerUpTileCountList[0] = tiles.getTilesByType(assets.tile`shrinkTile`).length
+    powerUpTileCountList[0] = tiles.getTilesByType(assets.tile`batTile`).length
+    powerUpTileCountList[0] = tiles.getTilesByType(assets.tile`heartTile`).length
+    powerUpTileCountList[0] = tiles.getTilesByType(assets.tile`unluckyTile`).length
     
 }
 function placePlayerOnTileMap() {
@@ -1234,7 +1225,28 @@ function hitPowerBox(tileImage:Image, location: tiles.Location){
     
     }
 sprites.onDestroyed(SpriteKind.Box,function(sprite){
+    
     tiles.setTileAt(sprite.tilemapLocation(),assets.tile`unluckyTile`)
+    let sum:number = 0
+    for(let value of powerUpTileCountList){
+        sum += value
+    }
+    if(tiles.getTilesByType(assets.tile`unluckyTile`).length == sum){
+        if(powerUpTileCountList[0] > 0 ){
+            tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(), assets.tile`growTile`)
+        } else if (powerUpTileCountList[1] > 0 ){
+            tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(), assets.tile`shootTile`)
+        } else if (powerUpTileCountList[2] > 0) {
+            tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(), assets.tile`shrinkTile`)
+        } else if (powerUpTileCountList[3] > 0){
+            tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(), assets.tile`batTile`)
+        } else if (powerUpTileCountList[4] > 0){
+            tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(), assets.tile`heartTile`)
+        } else if (powerUpTileCountList[5] > 0){
+            tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(), assets.tile`luckyTile`)
+        }
+       
+    } 
 })
 function createCollectiblesOnTileMap() {
     for (let tileLocation of tiles.getTilesByType(assets.tile`collectibleSpawn`)) {
@@ -1827,6 +1839,7 @@ game.onUpdate(function(){
     changeDirectionX(SpriteKind.GrowPower)
     changeDirectionX(SpriteKind.ShootPower)
     changeDirectionX(SpriteKind.ShrinkPower)
+    changeDirectionX(SpriteKind.HeartPower)
     changeDirectionX(SpriteKind.Enemy)
     changeDirectionX(SpriteKind.MysteryEnemy)
     changeDirectionX(SpriteKind.ShellEnemy)
@@ -1836,9 +1849,7 @@ game.onUpdate(function(){
     }
     
     
-    if(tiles.getTilesByType(assets.tile`luckyTile`).length <=0){
-        tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(),assets.tile`luckyTile`)
-    }
+    
 })
 function createPlayerAnimations(){
 
