@@ -16,6 +16,7 @@ export const Key = SpriteKind.create()
 export const Shop = SpriteKind.create()
 export const HeartPower = SpriteKind.create()
 export const Switch = SpriteKind.create()
+export const JumpPad = SpriteKind.create()
 
 }
 let keysAmount: number = 0
@@ -24,7 +25,32 @@ let menuSprite:miniMenu.MenuSprite = null
 let jumps: number = 1
 let playerSprite:Sprite = null 
 let isFalling: boolean = false
-let powerUpTileCountList:number[] = []
+let powerUpTileCountList = [
+    {
+        "asset": assets.tile`growTile`,
+        "max_count":0,
+    },
+    {
+        "asset": assets.tile`shootTile`,
+        "max_count": 0,
+    },
+    {
+        "asset": assets.tile`shrinkTile`,
+        "max_count": 0,
+    },
+    {
+        "asset": assets.tile`batTile`,
+        "max_count": 0,
+    },
+    {
+        "asset": assets.tile`heartTile`,
+        "max_count": 0,
+    },
+    {
+        "asset": assets.tile`luckyTile`,
+        "max_count": 0,
+    },
+]
 let isFlying: boolean = false
 let playerInvintoryList: Sprite[] = []
 info.setScore(0)
@@ -842,7 +868,8 @@ function createShopSprite(tileLocation: tiles.Location){
 
 let tileMapLevels = [
     tilemap`level1`,
-    tilemap`level2`
+    tilemap`level2`,
+    // tilemap`level3`
 ]
 
 function onStart(){
@@ -856,7 +883,24 @@ function onStart(){
 function createLevel(){
 
     keysAmount = 0
-    let allSpriteKindList = [SpriteKind.Collectible,SpriteKind.EnemyProjectile,SpriteKind.SpinningEnemy,SpriteKind.MysteryEnemy,SpriteKind.ShellEnemy,SpriteKind.EmptyChest,SpriteKind.Key,SpriteKind.Shop,SpriteKind.Switch,SpriteKind.Enemy]
+    let allSpriteKindList = [
+        SpriteKind.Collectible,
+        SpriteKind.EnemyProjectile,
+        SpriteKind.SpinningEnemy,
+        SpriteKind.MysteryEnemy,
+        SpriteKind.ShellEnemy,
+        SpriteKind.EmptyChest,
+        SpriteKind.Key,
+        SpriteKind.Shop,
+        SpriteKind.Switch,
+        SpriteKind.Enemy,
+        SpriteKind.GrowPower,
+        SpriteKind.ShootPower,
+        SpriteKind.ShrinkPower,
+        SpriteKind.BatPower,
+        SpriteKind.HeartPower,
+        SpriteKind.JumpPad
+        ]
     for(let spriteType of allSpriteKindList){
         sprites.destroyAllSpritesOfKind(spriteType)
     }
@@ -875,13 +919,14 @@ function createLevel(){
     generateTileMapShop()
     generateTileMapSwitchWall()
     placePlayerOnTileMap()
+    generateTileMapJumpPad()
     
-    powerUpTileCountList[0] = tiles.getTilesByType(assets.tile`growTile`).length
-    powerUpTileCountList[0] = tiles.getTilesByType(assets.tile`shootTile`).length
-    powerUpTileCountList[0] = tiles.getTilesByType(assets.tile`shrinkTile`).length
-    powerUpTileCountList[0] = tiles.getTilesByType(assets.tile`batTile`).length
-    powerUpTileCountList[0] = tiles.getTilesByType(assets.tile`heartTile`).length
-    powerUpTileCountList[0] = tiles.getTilesByType(assets.tile`unluckyTile`).length
+    powerUpTileCountList[0]["max_count"] = tiles.getTilesByType(assets.tile`growTile`).length
+    powerUpTileCountList[1]["max_count"] = tiles.getTilesByType(assets.tile`shootTile`).length
+    powerUpTileCountList[2]["max_count"] = tiles.getTilesByType(assets.tile`shrinkTile`).length
+    powerUpTileCountList[3]["max_count"] = tiles.getTilesByType(assets.tile`batTile`).length
+    powerUpTileCountList[4]["max_count"] = tiles.getTilesByType(assets.tile`heartTile`).length
+    powerUpTileCountList[5]["max_count"] = tiles.getTilesByType(assets.tile`luckyTile`).length
     
 }
 function placePlayerOnTileMap() {
@@ -1229,23 +1274,17 @@ sprites.onDestroyed(SpriteKind.Box,function(sprite){
     tiles.setTileAt(sprite.tilemapLocation(),assets.tile`unluckyTile`)
     let sum:number = 0
     for(let value of powerUpTileCountList){
-        sum += value
+        sum += value["max_count"]
     }
-    if(tiles.getTilesByType(assets.tile`unluckyTile`).length == sum){
-        if(powerUpTileCountList[0] > 0 ){
-            tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(), assets.tile`growTile`)
-        } else if (powerUpTileCountList[1] > 0 ){
-            tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(), assets.tile`shootTile`)
-        } else if (powerUpTileCountList[2] > 0) {
-            tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(), assets.tile`shrinkTile`)
-        } else if (powerUpTileCountList[3] > 0){
-            tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(), assets.tile`batTile`)
-        } else if (powerUpTileCountList[4] > 0){
-            tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(), assets.tile`heartTile`)
-        } else if (powerUpTileCountList[5] > 0){
-            tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(), assets.tile`luckyTile`)
+    let currentPowerUpTiles = powerUpTileCountList.filter(function(value,index){
+        if(value["max_count"] > 0){
+            return true
+        }else{
+           return false
         }
-       
+    })
+    if(tiles.getTilesByType(assets.tile`unluckyTile`).length == sum){
+        tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(),currentPowerUpTiles._pickRandom()["asset"])
     } 
 })
 function createCollectiblesOnTileMap() {
@@ -1538,6 +1577,51 @@ function generateTileMapSwitchWall(){
         `)
     }
 }
+function createJumpPad(tileLocation:tiles.Location){
+    let jumpPadSprite:Sprite = sprites.create(img`
+        b b b b b b b b b b b b b b b b
+        7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+        . . . . 1 . . . . . . 1 . . . .
+        . . . . . 1 . . . . 1 . . . . .
+        . . . . . . 1 . . 1 . . . . . .
+        . . . . . . . 1 1 . . . . . . .
+        . . . . . . . 1 1 . . . . . . .
+        . . . . . . 1 . . 1 . . . . . .
+        . . . . . 1 . . . . 1 . . . . .
+        . . . . 1 . . . . . . 1 . . . .
+        . . . 1 . . . . . . . . 1 . . .
+        . . 1 . . . . . . . . . . 1 . .
+        . 1 . . . . . . . . . . . . 1 .
+        1 . . . . . . . . . . . . . . 1
+        7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+        b b b b b b b b b b b b b b b b
+    `,SpriteKind.JumpPad)
+    tiles.placeOnTile(jumpPadSprite,tileLocation)
+}
+function generateTileMapJumpPad(){
+    for (let tileLocation of tiles.getTilesByType(assets.tile`jumpSpawnTile`)) {
+        createJumpPad(tileLocation)
+        tiles.setTileAt(tileLocation, img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `)
+    }
+}
+
 function generateTileMapShop(){
     for (let tileLocation of tiles.getTilesByType(assets.tile`shopSpawn`)) {
         createShopSprite(tileLocation)
@@ -2296,10 +2380,127 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.ShootPower, function (sprite, ot
     
     
 })
+sprites.onOverlap(SpriteKind.Player,SpriteKind.JumpPad,function(sprite,othersprite){
+    sprite.vy = -300
+    animation.runImageAnimation(othersprite,[
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . . . . . . 1 . . 1 . . . . . .
+            . . . . . . . 1 1 . . . . . . .
+            . . . . . . . 1 1 . . . . . . .
+            . . . . . . 1 . . 1 . . . . . .
+            . . . . . 1 . . . . 1 . . . . .
+            . . . . 1 . . . . . . 1 . . . .
+            . . . 1 . . . . . . . . 1 . . .
+            . . 1 . . . . . . . . . . 1 . .
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+        `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . . . . . . . 1 1 . . . . . . .
+            . . . . . . 1 . . 1 . . . . . .
+            . . . . . 1 . . . . 1 . . . . .
+            . . . . 1 . . . . . . 1 . . . .
+            . . . 1 . . . . . . . . 1 . . .
+            . . 1 . . . . . . . . . . 1 . .
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+        `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . . . . . 1 . . . . 1 . . . . .
+            . . . . 1 . . . . . . 1 . . . .
+            . . . 1 . . . . . . . . 1 . . .
+            . . 1 . . . . . . . . . . 1 . .
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+        `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . . . 1 . . . . . . . . 1 . . .
+            . . 1 . . . . . . . . . . 1 . .
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+        `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+        `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+        `
+    ],50,false)
+    othersprite.setFlag(SpriteFlag.Ghost,true)
+    pause(1500)
+    othersprite.setFlag(SpriteFlag.Ghost,false)
+})
 sprites.onOverlap(SpriteKind.Player,SpriteKind.Chest,function(sprite,othersprite){
     if(keysAmount <=0){
         return
     }
+
     othersprite.setImage(img`
         . b b b b b b b b b b b b b b .
         b e 4 4 4 4 4 4 4 4 4 4 4 4 4 b
