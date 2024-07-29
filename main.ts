@@ -17,6 +17,8 @@ export const Shop = SpriteKind.create()
 export const HeartPower = SpriteKind.create()
 export const Switch = SpriteKind.create()
 export const JumpPad = SpriteKind.create()
+export const InvinciblePower = SpriteKind.create()
+export const WallJumpPower = SpriteKind.create()
 
 }
 let keysAmount: number = 0
@@ -44,6 +46,14 @@ let powerUpTileCountList = [
     },
     {
         "asset": assets.tile`heartTile`,
+        "max_count": 0,
+    },
+    {
+        "asset": assets.tile`wallJumpTile`,
+        "max_count": 0,
+    },
+    {
+        "asset": assets.tile`invincibleTile`,
         "max_count": 0,
     },
     {
@@ -926,7 +936,9 @@ function createLevel(){
     powerUpTileCountList[2]["max_count"] = tiles.getTilesByType(assets.tile`shrinkTile`).length
     powerUpTileCountList[3]["max_count"] = tiles.getTilesByType(assets.tile`batTile`).length
     powerUpTileCountList[4]["max_count"] = tiles.getTilesByType(assets.tile`heartTile`).length
-    powerUpTileCountList[5]["max_count"] = tiles.getTilesByType(assets.tile`luckyTile`).length
+    powerUpTileCountList[5]["max_count"] = tiles.getTilesByType(assets.tile`wallJumpTile`).length
+    powerUpTileCountList[6]["max_count"] = tiles.getTilesByType(assets.tile`invincibleTile`).length
+    powerUpTileCountList[7]["max_count"] = tiles.getTilesByType(assets.tile`luckyTile`).length
     
 }
 function placePlayerOnTileMap() {
@@ -968,6 +980,8 @@ function resetPlayerPowerUps(){
     sprites.setDataBoolean(playerSprite,"ShootPower",false)
     sprites.setDataBoolean(playerSprite,"ShrinkPower",false)
     sprites.setDataBoolean(playerSprite,"BatPower",false)
+    sprites.setDataBoolean(playerSprite, "InvinciblePower", false)
+    sprites.setDataBoolean(playerSprite, "WallJumpPower", false)
     controller.moveSprite(playerSprite, 100, 0)
     playerSprite.ay = 300
     characterAnimations.setCharacterAnimationsEnabled(playerSprite, true)
@@ -1258,6 +1272,10 @@ function hitPowerBox(tileImage:Image, location: tiles.Location){
         createPowerUp(3, targetLocation)
     } else if (tileImage == assets.tile`heartTile`){
         createPowerUp(4, targetLocation)
+    } else if (tileImage == assets.tile`invincibleTile`) {
+        createPowerUp(5, targetLocation)
+    } else if (tileImage == assets.tile`wallJumpTile`) {
+        createPowerUp(6, targetLocation)
     } else if (tileImage == assets.tile`unluckyTile`){
         music.play(music.createSoundEffect(WaveShape.Sine, 736, 1, 255, 0, 100, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
         return
@@ -1807,6 +1825,10 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function(){
     
 })
 info.onCountdownEnd(function(){
+    if(sprites.readDataBoolean(playerSprite,"InvinciblePower")){
+        resetPlayerPowerUps()
+        return
+    }
     resetPlayerPowerUps()
     
     timer.after(10000, function() {
@@ -1849,12 +1871,21 @@ scene.onHitWall(SpriteKind.Projectile,function(sprite,location){
         sprite.destroy()
     }
 })
+
 scene.onHitWall(SpriteKind.Player, function(sprite,location){
     if(sprite.isHittingTile(CollisionDirection.Bottom)){
         jumps += 1
         isFalling = false
 
     }
+   if(sprites.readDataBoolean(sprite,"WallJumpPower")){
+       if (sprite.isHittingTile(CollisionDirection.Left) || sprite.isHittingTile(CollisionDirection.Right)) {
+           
+           jumps += 1
+           isFalling = false
+
+       }
+   }
     if(sprite.isHittingTile(CollisionDirection.Top)){
         if(tiles.tileAtLocationEquals(location, assets.tile`luckyTile`)||
             tiles.tileAtLocationEquals(location, assets.tile`growTile`)||
@@ -1862,6 +1893,8 @@ scene.onHitWall(SpriteKind.Player, function(sprite,location){
             tiles.tileAtLocationEquals(location, assets.tile`shrinkTile`)||
             tiles.tileAtLocationEquals(location, assets.tile`batTile`)||
             tiles.tileAtLocationEquals(location, assets.tile`heartTile`)||
+            tiles.tileAtLocationEquals(location, assets.tile`invincibleTile`)||
+            tiles.tileAtLocationEquals(location, assets.tile`wallJumpTile`)||
             tiles.tileAtLocationEquals(location, assets.tile`unluckyTile`)){
             
             //createCollectible(targetLocation)
@@ -1927,8 +1960,14 @@ game.onUpdate(function(){
     changeDirectionX(SpriteKind.Enemy)
     changeDirectionX(SpriteKind.MysteryEnemy)
     changeDirectionX(SpriteKind.ShellEnemy)
-    if(playerSprite.vy > 0){
-        isFalling =true
+    changeDirectionX(SpriteKind.InvinciblePower)
+    changeDirectionX(SpriteKind.WallJumpPower)
+    if(playerSprite.vy > 0 &&!isFalling){
+
+        timer.after(200, function() {
+            isFalling = true
+        })
+       
         
     }
     
@@ -2353,6 +2392,12 @@ scene.onOverlapTile(SpriteKind.MysteryEnemy, assets.tile`lava`, function (sprite
     sprite.destroy()
 })
 scene.onOverlapTile(SpriteKind.Collectible, assets.tile`lava`, function (sprite, location) {
+    sprite.destroy()
+})
+scene.onOverlapTile(SpriteKind.InvinciblePower, assets.tile`lava`, function (sprite, location) {
+    sprite.destroy()
+})
+scene.onOverlapTile(SpriteKind.WallJumpPower, assets.tile`lava`, function (sprite, location) {
     sprite.destroy()
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`conveyerMove`, function (sprite, location) {
@@ -3157,7 +3202,25 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.BatPower, function (sprite, othe
     
 
 })
+sprites.onOverlap(SpriteKind.Player,SpriteKind.InvinciblePower,function(sprite,othersprite){
+    othersprite.destroy()
+    resetPlayerPowerUps()
 
+    if (sprites.readDataBoolean(sprite, "InvinciblePower")) {
+        return
+    }
+    sprites.setDataBoolean(sprite, "InvinciblePower", true)
+    info.startCountdown(30)
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.WallJumpPower, function (sprite, othersprite) {
+    othersprite.destroy()
+    resetPlayerPowerUps()
+    if (sprites.readDataBoolean(sprite, "WallJumpPower")) {
+        return
+    }
+    sprites.setDataBoolean(sprite, "WallJumpPower", true)
+
+})
 sprites.onOverlap(SpriteKind.Player,SpriteKind.HeartPower,function(sprite,othersprite){
     othersprite.destroy()
     info.changeLifeBy(1)
@@ -3288,9 +3351,45 @@ let powerUpObject = {
             ....................
             ....................
             ....................
+        `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . b . . . . . . .
+            . . . . . . . b d b . . . . . .
+            . . . . . . b 5 5 5 b . . . . .
+            . . . . . b b 5 5 5 b b . . . .
+            . . b b b b 5 5 5 1 1 b b b b .
+            . . b 5 5 5 5 5 5 1 1 5 5 5 b .
+            . . b d d 5 5 5 5 5 5 5 d d b .
+            . . . b d d 5 5 5 5 5 d d b . .
+            . . . c b 5 5 5 5 5 5 5 b c . .
+            . . . c b 5 5 5 5 5 5 5 b c . .
+            . . . c 5 5 d d b d d 5 5 c . .
+            . . . c 5 d d c c c d d 5 c . .
+            . . . c c c c . . . c c c c . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `,
+        img`
+            . . . . . . . . . . . 6 6 6 6 6
+            . . . . . . . . . 6 6 7 7 7 7 8
+            . . . . . . 8 8 8 7 7 8 8 6 8 8
+            . . e e e e c 6 6 8 8 . 8 7 8 .
+            . e 2 5 4 2 e c 8 . . . 6 7 8 .
+            e 2 4 2 2 2 2 2 c . . . 6 7 8 .
+            e 2 2 2 2 2 2 2 c . . . 8 6 8 .
+            e 2 e e 2 2 2 2 e e e e c 6 8 .
+            c 2 e e 2 2 2 2 e 2 5 4 2 c 8 .
+            . c 2 e e e 2 e 2 4 2 2 2 2 c .
+            . . c 2 2 2 e e 2 2 2 2 2 2 2 e
+            . . . e c c e c 2 2 2 2 2 2 2 e
+            . . . . . . . c 2 e e 2 2 e 2 c
+            . . . . . . . c e e e e e e 2 c
+            . . . . . . . . c e 2 2 2 2 c .
+            . . . . . . . . . c c c c c . .
         `
         ],
-    "kind":[SpriteKind.GrowPower,SpriteKind.ShootPower,SpriteKind.ShrinkPower,SpriteKind.BatPower,SpriteKind.HeartPower]
+    "kind":[SpriteKind.GrowPower,SpriteKind.ShootPower,SpriteKind.ShrinkPower,SpriteKind.BatPower,SpriteKind.HeartPower,SpriteKind.InvinciblePower,SpriteKind.WallJumpPower]
 }
 
 let menuItemList: miniMenu.MenuItem[] = [
@@ -3298,11 +3397,13 @@ let menuItemList: miniMenu.MenuItem[] = [
     miniMenu.createMenuItem("shoot power", powerUpObject["image"][1]),
     miniMenu.createMenuItem("shrink power", powerUpObject["image"][2]),
     miniMenu.createMenuItem("bat power", powerUpObject["image"][3]),
-    miniMenu.createMenuItem("health container", powerUpObject["image"][4])
+    miniMenu.createMenuItem("health container", powerUpObject["image"][4]),
+    miniMenu.createMenuItem("invincible power", powerUpObject["image"][5]),
+    miniMenu.createMenuItem("wall jump power", powerUpObject["image"][6])
 ]
 
 let menuItemCostList:number[] = [
-    250,300,150,500,1000
+    250,300,150,500,1000,1500,750
     
 ]
 function changeDirectionX(spriteType:number){
@@ -3334,6 +3435,13 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`openexit`, function (sprite, 
 })
 
 sprites.onOverlap(SpriteKind.Player,SpriteKind.EnemyProjectile,function(sprite,othersprite){
+    if (sprites.readDataBoolean(sprite, "InvinciblePower")) {
+        othersprite.destroy(effects.bubbles)
+        info.changeScoreBy(50)
+        music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
+        return
+    }
     sprite.destroy()
     
     scene.cameraShake(99,500)
@@ -3345,6 +3453,13 @@ scene.onOverlapTile(SpriteKind.Enemy, assets.tile`lava`,function(sprite){
 sprite.destroy(effects.warmRadial)
 })
 sprites.onOverlap(SpriteKind.Player,SpriteKind.SpinningEnemy,function(sprite,othersprite){
+    if (sprites.readDataBoolean(sprite, "InvinciblePower")) {
+       
+        info.changeScoreBy(50)
+        music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
+        return
+    }
     sprite.destroy()
     
     music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
@@ -3354,7 +3469,13 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.SpinningEnemy,function(sprite,oth
 
 })
 sprites.onOverlap(SpriteKind.Player,SpriteKind.Enemy,function(sprite,otherSprite){ 
-    
+    if(sprites.readDataBoolean(sprite,"InvinciblePower")){
+        otherSprite.destroy(effects.bubbles)
+        info.changeScoreBy(50)
+        music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
+        return
+    }
     if(sprite.bottom < otherSprite.y){
 
         if(!sprites.readDataNumber(playerSprite,"BatPower")){
@@ -3377,6 +3498,13 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.Enemy,function(sprite,otherSprite
 })
 
 sprites.onOverlap(SpriteKind.Player,SpriteKind.MysteryEnemy,function(sprite,otherSprite){
+    if (sprites.readDataBoolean(sprite, "InvinciblePower")) {
+        otherSprite.destroy(effects.bubbles)
+        info.changeScoreBy(50)
+        music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
+        return
+    }
     if(sprite.bottom < otherSprite.y){
         sprite.vy = -100
         otherSprite.destroy()
@@ -3399,6 +3527,13 @@ sprites.onOverlap(SpriteKind.ShellEnemy,SpriteKind.Enemy,function(sprite,otherSp
 })
 
 sprites.onOverlap(SpriteKind.Player,SpriteKind.ShellEnemy,function(sprite,otherSprite){
+    if (sprites.readDataBoolean(sprite, "InvinciblePower")) {
+        otherSprite.destroy(effects.bubbles)
+        info.changeScoreBy(50)
+        music.play(music.createSoundEffect(WaveShape.Triangle, 300, 200, 255, 0, 75, SoundExpressionEffect.None, InterpolationCurve.Curve), music.PlaybackMode.InBackground)
+
+        return
+    }
     if(Math.abs(otherSprite.vx) > 0 ){
             if(sprite.bottom < otherSprite.bottom){
                 
