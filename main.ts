@@ -16,13 +16,14 @@ export const Key = SpriteKind.create()
 export const Shop = SpriteKind.create()
 export const HeartPower = SpriteKind.create()
 export const Switch = SpriteKind.create()
-export const JumpPad = SpriteKind.create()
+export const UpJumpPad = SpriteKind.create()
 export const InvinciblePower = SpriteKind.create()
 export const WallJumpPower = SpriteKind.create()
-
+export const LeftJumpPad = SpriteKind.create()
+export const RightJumpPad = SpriteKind.create()
 }
 let keysAmount: number = 0
-let level:number = 0
+let level:number = -1
 let menuSprite:miniMenu.MenuSprite = null
 let jumps: number = 1
 let playerSprite:Sprite = null 
@@ -909,7 +910,9 @@ function createLevel(){
         SpriteKind.ShrinkPower,
         SpriteKind.BatPower,
         SpriteKind.HeartPower,
-        SpriteKind.JumpPad
+        SpriteKind.UpJumpPad,
+        SpriteKind.RightJumpPad,
+        SpriteKind.LeftJumpPad
         ]
     for(let spriteType of allSpriteKindList){
         sprites.destroyAllSpritesOfKind(spriteType)
@@ -1595,8 +1598,10 @@ function generateTileMapSwitchWall(){
         `)
     }
 }
-function createJumpPad(tileLocation:tiles.Location){
-    let jumpPadSprite:Sprite = sprites.create(img`
+function createJumpPad(tileLocation:tiles.Location,jumpType:string){
+    let jumpPadSprite:Sprite = null
+    if(jumpType == "up"){
+        jumpPadSprite = sprites.create(img`
         b b b b b b b b b b b b b b b b
         7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
         . . . . 1 . . . . . . 1 . . . .
@@ -1613,12 +1618,96 @@ function createJumpPad(tileLocation:tiles.Location){
         1 . . . . . . . . . . . . . . 1
         7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
         b b b b b b b b b b b b b b b b
-    `,SpriteKind.JumpPad)
+    `, SpriteKind.UpJumpPad)
+    }else if(jumpType == "right"){
+        jumpPadSprite = sprites.create(img`
+        b b b b b b b b b b b b b b b b
+        7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+        . . . . 1 . . . . . . 1 . . . .
+        . . . . . 1 . . . . 1 . . . . .
+        . . . . . . 1 . . 1 . . . . . .
+        . . . . . . . 1 1 . . . . . . .
+        . . . . . . . 1 1 . . . . . . .
+        . . . . . . 1 . . 1 . . . . . .
+        . . . . . 1 . . . . 1 . . . . .
+        . . . . 1 . . . . . . 1 . . . .
+        . . . 1 . . . . . . . . 1 . . .
+        . . 1 . . . . . . . . . . 1 . .
+        . 1 . . . . . . . . . . . . 1 .
+        1 . . . . . . . . . . . . . . 1
+        7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+        b b b b b b b b b b b b b b b b
+    `, SpriteKind.RightJumpPad)
+    }else if(jumpType == "left"){
+        jumpPadSprite = sprites.create(img`
+        b b b b b b b b b b b b b b b b
+        7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+        . . . . 1 . . . . . . 1 . . . .
+        . . . . . 1 . . . . 1 . . . . .
+        . . . . . . 1 . . 1 . . . . . .
+        . . . . . . . 1 1 . . . . . . .
+        . . . . . . . 1 1 . . . . . . .
+        . . . . . . 1 . . 1 . . . . . .
+        . . . . . 1 . . . . 1 . . . . .
+        . . . . 1 . . . . . . 1 . . . .
+        . . . 1 . . . . . . . . 1 . . .
+        . . 1 . . . . . . . . . . 1 . .
+        . 1 . . . . . . . . . . . . 1 .
+        1 . . . . . . . . . . . . . . 1
+        7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+        b b b b b b b b b b b b b b b b
+    `, SpriteKind.LeftJumpPad)
+    }
+   
+    sprites.setDataString(jumpPadSprite,"type",jumpType)
     tiles.placeOnTile(jumpPadSprite,tileLocation)
+
 }
 function generateTileMapJumpPad(){
     for (let tileLocation of tiles.getTilesByType(assets.tile`jumpSpawnTile`)) {
-        createJumpPad(tileLocation)
+        createJumpPad(tileLocation,"up")
+        tiles.setTileAt(tileLocation, img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `)
+    }
+    for (let tileLocation of tiles.getTilesByType(assets.tile`jumpRightSpawnTile`)) {
+        createJumpPad(tileLocation, "right")
+        tiles.setTileAt(tileLocation, img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `)
+    }
+    for (let tileLocation of tiles.getTilesByType(assets.tile`jumpLeftSpawnTile`)) {
+        createJumpPad(tileLocation, "left")
         tiles.setTileAt(tileLocation, img`
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
@@ -2425,10 +2514,10 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.ShootPower, function (sprite, ot
     
     
 })
-sprites.onOverlap(SpriteKind.Player,SpriteKind.JumpPad,function(sprite,othersprite){
+sprites.onOverlap(SpriteKind.Player,SpriteKind.UpJumpPad,function(sprite,othersprite){
     sprite.vy = -300
-    animation.runImageAnimation(othersprite,[
-        img`
+    animation.runImageAnimation(othersprite, [
+            img`
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
             b b b b b b b b b b b b b b b b
@@ -2445,8 +2534,8 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.JumpPad,function(sprite,otherspri
             1 . . . . . . . . . . . . . . 1
             7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
             b b b b b b b b b b b b b b b b
-        `,
-        img`
+            `,
+            img`
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
@@ -2463,8 +2552,8 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.JumpPad,function(sprite,otherspri
             1 . . . . . . . . . . . . . . 1
             7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
             b b b b b b b b b b b b b b b b
-        `,
-        img`
+            `,
+            img`
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
@@ -2481,8 +2570,8 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.JumpPad,function(sprite,otherspri
             1 . . . . . . . . . . . . . . 1
             7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
             b b b b b b b b b b b b b b b b
-        `,
-        img`
+            `,
+            img`
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
@@ -2499,8 +2588,8 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.JumpPad,function(sprite,otherspri
             1 . . . . . . . . . . . . . . 1
             7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
             b b b b b b b b b b b b b b b b
-        `,
-        img`
+            `,
+            img`
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
@@ -2517,8 +2606,8 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.JumpPad,function(sprite,otherspri
             1 . . . . . . . . . . . . . . 1
             7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
             b b b b b b b b b b b b b b b b
-        `,
-        img`
+            `,
+            img`
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
             . . . . . . . . . . . . . . . .
@@ -2535,11 +2624,255 @@ sprites.onOverlap(SpriteKind.Player,SpriteKind.JumpPad,function(sprite,otherspri
             7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
             7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
             b b b b b b b b b b b b b b b b
-        `
-    ],50,false)
-    othersprite.setFlag(SpriteFlag.Ghost,true)
+            `
+    ], 50, false)
+    othersprite.setFlag(SpriteFlag.Ghost, true)
     pause(1500)
-    othersprite.setFlag(SpriteFlag.Ghost,false)
+    othersprite.setFlag(SpriteFlag.Ghost, false)
+
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.RightJumpPad, function (sprite, othersprite) {
+    controller.moveSprite(sprite,0,0)
+
+    sprite.vx = 200
+    animation.runImageAnimation(othersprite, [
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . . . . . . 1 . . 1 . . . . . .
+            . . . . . . . 1 1 . . . . . . .
+            . . . . . . . 1 1 . . . . . . .
+            . . . . . . 1 . . 1 . . . . . .
+            . . . . . 1 . . . . 1 . . . . .
+            . . . . 1 . . . . . . 1 . . . .
+            . . . 1 . . . . . . . . 1 . . .
+            . . 1 . . . . . . . . . . 1 . .
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+            `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . . . . . . . 1 1 . . . . . . .
+            . . . . . . 1 . . 1 . . . . . .
+            . . . . . 1 . . . . 1 . . . . .
+            . . . . 1 . . . . . . 1 . . . .
+            . . . 1 . . . . . . . . 1 . . .
+            . . 1 . . . . . . . . . . 1 . .
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+            `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . . . . . 1 . . . . 1 . . . . .
+            . . . . 1 . . . . . . 1 . . . .
+            . . . 1 . . . . . . . . 1 . . .
+            . . 1 . . . . . . . . . . 1 . .
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+            `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . . . 1 . . . . . . . . 1 . . .
+            . . 1 . . . . . . . . . . 1 . .
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+            `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+            `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+            `
+    ], 50, false)
+    othersprite.setFlag(SpriteFlag.Ghost, true)
+    timer.after(200,function(){
+        controller.moveSprite(sprite,100,0)
+    })
+    pause(1500)
+    othersprite.setFlag(SpriteFlag.Ghost, false)
+
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.LeftJumpPad, function (sprite, othersprite) {
+    controller.moveSprite(sprite,0,0)
+    sprite.vx = -200
+    animation.runImageAnimation(othersprite, [
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . . . . . . 1 . . 1 . . . . . .
+            . . . . . . . 1 1 . . . . . . .
+            . . . . . . . 1 1 . . . . . . .
+            . . . . . . 1 . . 1 . . . . . .
+            . . . . . 1 . . . . 1 . . . . .
+            . . . . 1 . . . . . . 1 . . . .
+            . . . 1 . . . . . . . . 1 . . .
+            . . 1 . . . . . . . . . . 1 . .
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+            `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . . . . . . . 1 1 . . . . . . .
+            . . . . . . 1 . . 1 . . . . . .
+            . . . . . 1 . . . . 1 . . . . .
+            . . . . 1 . . . . . . 1 . . . .
+            . . . 1 . . . . . . . . 1 . . .
+            . . 1 . . . . . . . . . . 1 . .
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+            `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . . . . . 1 . . . . 1 . . . . .
+            . . . . 1 . . . . . . 1 . . . .
+            . . . 1 . . . . . . . . 1 . . .
+            . . 1 . . . . . . . . . . 1 . .
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+            `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . . . 1 . . . . . . . . 1 . . .
+            . . 1 . . . . . . . . . . 1 . .
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+            `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            . 1 . . . . . . . . . . . . 1 .
+            1 . . . . . . . . . . . . . . 1
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+            `,
+        img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            b b b b b b b b b b b b b b b b
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+            b b b b b b b b b b b b b b b b
+            `
+    ], 50, false)
+    othersprite.setFlag(SpriteFlag.Ghost, true)
+    timer.after(200,function(){
+        controller.moveSprite(sprite,100,0)
+    })
+    pause(1500)
+    othersprite.setFlag(SpriteFlag.Ghost, false)
+
 })
 sprites.onOverlap(SpriteKind.Player,SpriteKind.Chest,function(sprite,othersprite){
     if(keysAmount <=0){
