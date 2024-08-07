@@ -21,12 +21,15 @@ export const InvinciblePower = SpriteKind.create()
 export const WallJumpPower = SpriteKind.create()
 export const LeftJumpPad = SpriteKind.create()
 export const RightJumpPad = SpriteKind.create()
+export const TeleportPad = SpriteKind.create()
+export const TeleportLocationPad = SpriteKind.create()
 }
 let keysAmount: number = 0
 let level:number = -1
 let menuSprite:miniMenu.MenuSprite = null
 let jumps: number = 1
 let playerSprite:Sprite = null 
+let playerLastGroundLocation:tiles.Location
 let isFalling: boolean = false
 let powerUpTileCountList = [
     {
@@ -477,12 +480,11 @@ function createShellEnemy(spriteLocation:Sprite){
         . . . c c c c c c c c c c c . .
     `, SpriteKind.ShellEnemy)
 
-    
-
     enemySprite.ay = 300
     enemySprite.setPosition(spriteLocation.x,spriteLocation.y)
     enemySprite.setFlag(SpriteFlag.AutoDestroy,true)
 }
+
 
 
 function createSpinThing(tileLocation:tiles.Location,amount:number){
@@ -912,7 +914,10 @@ function createLevel(){
         SpriteKind.HeartPower,
         SpriteKind.UpJumpPad,
         SpriteKind.RightJumpPad,
-        SpriteKind.LeftJumpPad
+        SpriteKind.LeftJumpPad,
+        SpriteKind.TeleportPad,
+        SpriteKind.TeleportLocationPad,
+        SpriteKind.Tile
         ]
     for(let spriteType of allSpriteKindList){
         sprites.destroyAllSpritesOfKind(spriteType)
@@ -933,6 +938,8 @@ function createLevel(){
     generateTileMapSwitchWall()
     placePlayerOnTileMap()
     generateTileMapJumpPad()
+    generateTileMapTeleportPad()
+    generateTileMapTeleportLocationPad()
     
     powerUpTileCountList[0]["max_count"] = tiles.getTilesByType(assets.tile`growTile`).length
     powerUpTileCountList[1]["max_count"] = tiles.getTilesByType(assets.tile`shootTile`).length
@@ -1206,6 +1213,11 @@ sprites.onDestroyed(SpriteKind.Player, function(sprite){
 
 })
 
+sprites.onOverlap(SpriteKind.Player,SpriteKind.TeleportPad,function(sprite,othersprite){
+    let destination:Sprite = sprites.allOfKind(SpriteKind.TeleportLocationPad)[0]
+    tiles.placeOnTile(sprite,destination.tilemapLocation())
+})
+
 sprites.onOverlap(SpriteKind.Player,SpriteKind.Shop,function(sprite,othersprite){
     if(menuSprite){
         return
@@ -1357,6 +1369,48 @@ function generateTileMapkeys(){
     }
 }
 
+function createTeleportLocationPad(tileLocation:tiles.Location){
+    let teleportLocationPad:Sprite = sprites.create(img`
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . a a a a . . . . . .
+        . . . . 2 2 2 2 2 2 2 2 . . . .
+        5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5
+        b b b b b b b b b b b b b b b b
+        b b b b b b b b b b b b b b b b
+        b b b b b b b b b b b b b b b b
+    `,SpriteKind.TeleportLocationPad)
+    tiles.placeOnTile(teleportLocationPad,tileLocation)
+}
+function createTeleportPad(tileLocation:tiles.Location){
+    let teleportPad:Sprite = sprites.create(img`
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . .
+        . . . . . . 5 5 5 5 . . . . . .
+        . . . . 2 2 2 2 2 2 2 2 . . . .
+        a a a a a a a a a a a a a a a a
+        b b b b b b b b b b b b b b b b
+        b b b b b b b b b b b b b b b b
+        b b b b b b b b b b b b b b b b
+    `,SpriteKind.TeleportPad)
+    tiles.placeOnTile(teleportPad,tileLocation)
+}
 
 function createChest(tileLocation:tiles.Location){
     let chest:Sprite = sprites.create(img`
@@ -1729,6 +1783,53 @@ function generateTileMapJumpPad(){
     }
 }
 
+function generateTileMapTeleportLocationPad(){
+    for (let tileLocation of tiles.getTilesByType(assets.tile`teleportLocationTile`)) {
+        createTeleportLocationPad(tileLocation)
+        tiles.setTileAt(tileLocation, img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `)
+    }
+}
+function generateTileMapTeleportPad(){
+    for (let tileLocation of tiles.getTilesByType(assets.tile`teleportTile`)) {
+        createTeleportPad(tileLocation)
+        tiles.setTileAt(tileLocation, img`
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+            . . . . . . . . . . . . . . . .
+        `)
+    }
+}
+
 function generateTileMapShop(){
     for (let tileLocation of tiles.getTilesByType(assets.tile`shopSpawn`)) {
         createShopSprite(tileLocation)
@@ -1963,6 +2064,7 @@ scene.onHitWall(SpriteKind.Projectile,function(sprite,location){
 
 scene.onHitWall(SpriteKind.Player, function(sprite,location){
     if(sprite.isHittingTile(CollisionDirection.Bottom)){
+        playerLastGroundLocation = location
         jumps += 1
         isFalling = false
 
@@ -2033,6 +2135,10 @@ game.onUpdateInterval(1000,function(){
     spriteJump(SpriteKind.Enemy)
 })
 game.onUpdate(function(){
+    if(playerSprite.isOutOfScreen(game.currentScene().camera)){
+        placePlayerOnTileMap()
+        resetPlayerPowerUps()
+    }
     for(let sprite of sprites.allOfKind(SpriteKind.Key)){
         sprite.y += (0.5)*Math.sin(delta)
     }
@@ -2455,6 +2561,8 @@ function createPlayerAnimations(){
     `], 100, characterAnimations.rule(Predicate.HittingWallDown, Predicate.NotMoving, Predicate.FacingRight))
 
 }
+
+
 scene.onOverlapTile(SpriteKind.Player, assets.tile`lava`, function (sprite, location) {
     sprites.destroy(sprite)
     scene.cameraShake(99, 500)
