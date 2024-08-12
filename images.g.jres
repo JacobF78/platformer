@@ -4,6 +4,11 @@
         "mimeType": "image/x-mkcd-f4",
         "displayName": "drone"
     },
+    "image2": {
+        "data": "hwQQABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgIiIAAgAAACIiIgICAAAgIgAgIgIAACICAAAiAgAAIAAAIiICAAAAAAAAAAAAAAAAAAAAAAAAEREBABAAAAARAQAAEQEAABERABARAAAAAREREQEAAAABEBERAAAAAAAAAAAAAAAAAAAAAAAAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "gravityPowerUp"
+    },
     "*": {
         "mimeType": "image/x-mkcd-f4",
         "dataEncoding": "base64",
