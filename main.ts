@@ -26,7 +26,7 @@ export const TeleportLocationPad = SpriteKind.create()
 export const GravityPower = SpriteKind.create()
 }
 let keysAmount: number = 0
-let level:number = 2
+let level:number = 0
 let menuSprite:miniMenu.MenuSprite = null
 let jumps: number = 1
 let isTeleporting = false
@@ -38,38 +38,47 @@ let powerUpTileCountList = [
     {
         "asset": assets.tile`growTile`,
         "max_count":0,
+        "location": [tiles.getTileLocation(0,0)],
     },
     {
         "asset": assets.tile`shootTile`,
         "max_count": 0,
+        "location": [tiles.getTileLocation(0, 0)],
     },
     {
         "asset": assets.tile`shrinkTile`,
         "max_count": 0,
+        "location": [tiles.getTileLocation(0, 0)],
     },
     {
         "asset": assets.tile`batTile`,
         "max_count": 0,
+        "location": [tiles.getTileLocation(0, 0)],
     },
     {
         "asset": assets.tile`heartTile`,
         "max_count": 0,
+        "location": [tiles.getTileLocation(0, 0)],
     },
     {
         "asset": assets.tile`wallJumpTile`,
         "max_count": 0,
+        "location": [tiles.getTileLocation(0, 0)],
     },
     {
         "asset": assets.tile`invincibleTile`,
         "max_count": 0,
+        "location": [tiles.getTileLocation(0,0)],
     },
     {
         "asset": assets.tile`gravityTile`,
         "max_count": 0,
+        "location": [tiles.getTileLocation(0, 0)],
     },
     {
         "asset": assets.tile`luckyTile`,
         "max_count": 0,
+        "location": [tiles.getTileLocation(0, 0)],
     },
     
 
@@ -892,13 +901,14 @@ function createShopSprite(tileLocation: tiles.Location){
 let tileMapLevels = [
     tilemap`level1`,
     tilemap`level2`,
-    tilemap`level3`
+    tilemap`level3`,
+    tilemap`level4`,
 ]
 
 function onStart(){
-    
+      
     info.setLife(5)
-    
+     
     createPlayer()
     createLevel()
     
@@ -1077,16 +1087,20 @@ function createLevel(){
     generateTileMapTeleportPad()
     generateTileMapTeleportLocationPad()
     
-    powerUpTileCountList[0]["max_count"] = tiles.getTilesByType(assets.tile`growTile`).length
-    powerUpTileCountList[1]["max_count"] = tiles.getTilesByType(assets.tile`shootTile`).length
-    powerUpTileCountList[2]["max_count"] = tiles.getTilesByType(assets.tile`shrinkTile`).length
-    powerUpTileCountList[3]["max_count"] = tiles.getTilesByType(assets.tile`batTile`).length
-    powerUpTileCountList[4]["max_count"] = tiles.getTilesByType(assets.tile`heartTile`).length
-    powerUpTileCountList[5]["max_count"] = tiles.getTilesByType(assets.tile`wallJumpTile`).length
-    powerUpTileCountList[6]["max_count"] = tiles.getTilesByType(assets.tile`invincibleTile`).length
-    powerUpTileCountList[7]["max_count"] = tiles.getTilesByType(assets.tile`gravityTile`).length
-    powerUpTileCountList[8]["max_count"] = tiles.getTilesByType(assets.tile`luckyTile`).length
+    // powerUpTileCountList[0]["max_count"] = tiles.getTilesByType(assets.tile`growTile`).length
+    // powerUpTileCountList[1]["max_count"] = tiles.getTilesByType(assets.tile`shootTile`).length
+    // powerUpTileCountList[2]["max_count"] = tiles.getTilesByType(assets.tile`shrinkTile`).length
+    // powerUpTileCountList[3]["max_count"] = tiles.getTilesByType(assets.tile`batTile`).length
+    // powerUpTileCountList[4]["max_count"] = tiles.getTilesByType(assets.tile`heartTile`).length
+    // powerUpTileCountList[5]["max_count"] = tiles.getTilesByType(assets.tile`wallJumpTile`).length
+    // powerUpTileCountList[6]["max_count"] = tiles.getTilesByType(assets.tile`invincibleTile`).length
+    // powerUpTileCountList[7]["max_count"] = tiles.getTilesByType(assets.tile`gravityTile`).length
+    // powerUpTileCountList[8]["max_count"] = tiles.getTilesByType(assets.tile`luckyTile`).length
     
+    for(let currentPowerUpTile of powerUpTileCountList){
+        currentPowerUpTile["max_count"] = tiles.getTilesByType(currentPowerUpTile["asset"]).length
+        currentPowerUpTile["location"] = tiles.getTilesByType(currentPowerUpTile["asset"])
+    }
     scroller.scrollBackgroundWithCamera(scroller.CameraScrollMode.OnlyHorizontal)
 
 }
@@ -1348,6 +1362,7 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`topHazardTile`, function (spr
 })
 sprites.onDestroyed(SpriteKind.Player, function(sprite){
     createPlayer()
+    replenishLuckyTile()
     placePlayerOnTileMap()
     
    info.changeLifeBy(-1)
@@ -1456,21 +1471,30 @@ sprites.onDestroyed(SpriteKind.Box,function(sprite){
     for(let value of powerUpTileCountList){
         sum += value["max_count"]
     }
-    let currentPowerUpTiles = powerUpTileCountList.filter(function(value,index){
-        if(value["max_count"] > 0){
-            return true
-        }else{
-           return false
-        }
-    })
+    
     let unLuckyTileList: tiles.Location[] = tiles.getTilesByType(assets.tile`unluckyTile`)
     if(unLuckyTileList.length == sum){
-        // unLuckyTileList.filter(function(location,index){
-        //     if()
-        // })
-        tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(),currentPowerUpTiles._pickRandom()["asset"])
+        replenishLuckyTile()
+        
+        //tiles.setTileAt(tiles.getTilesByType(assets.tile`unluckyTile`)._pickRandom(),currentPowerUpTiles._pickRandom()["asset"])
     } 
 })
+function replenishLuckyTile(){
+    let currentPowerUpTiles = powerUpTileCountList.filter(function (value, index) {
+        if (value["max_count"] > 0) {
+            return true
+        } else {
+            return false
+        }
+    })
+    for (let powerTileObject of currentPowerUpTiles) {
+        for (let tileLocation of powerTileObject["location"]) {
+            tiles.setTileAt(tileLocation, powerTileObject["asset"])
+
+        }
+    }
+}
+
 function createCollectiblesOnTileMap() {
     for (let tileLocation of tiles.getTilesByType(assets.tile`collectibleSpawn`)) {
         createCollectible(tileLocation)
@@ -3174,7 +3198,10 @@ scene.onOverlapTile(SpriteKind.GravityPower, assets.tile`lava`, function (sprite
     sprite.destroy()
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`conveyerMove`, function (sprite, location) {
-   playerSprite.vx = 40
+
+    if(sprite.isHittingTile(CollisionDirection.Bottom)){
+        playerSprite.vx = 40
+    }
 
 })
 
